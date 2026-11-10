@@ -370,7 +370,7 @@ const Staff={perfil:null,banco:null,tab:null,
     root.innerHTML=`<header class="top">${marca()}<div class="row"><span class="muted small">${esc(p.nombre)} · ${admin?"Administrador":"Docente · "+esc(p.area)}</span><button class="btn ghost sm" id="salir">Salir</button></div></header>
      <nav class="tabs" id="tabs" style="margin-bottom:16px">${tabs.map(t=>`<button data-t="${t[0]}" aria-pressed="${this.tab===t[0]}">${t[1]}</button>`).join("")}</nav><main id="main"></main>`;
     $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{this.tab=b.dataset.t;this.app()});
-    $("salir").onclick=async()=>{await sb.auth.signOut();this.perfil=null;this.tab=null;this.registrado=false;this.login();};
+    $("salir").onclick=async()=>{await sb.auth.signOut();this.banco=null;V._sim=null;V._rev=null;V._c=null;V._f=null;this.perfil=null;this.tab=null;this.registrado=false;this.login();};
     const m=$("main");m.innerHTML=`<div class="panel"><p class="muted">Cargando…</p></div>`;
     Promise.resolve(V[this.tab](m)).catch(err=>{m.innerHTML=`<div class="panel"><div class="msg err">${esc(err.message||err)}</div></div>`});
   },
@@ -380,13 +380,15 @@ const Staff={perfil:null,banco:null,tab:null,
     if(error)throw new Error("No se pudo cargar el banco: "+error.message);
     const b={};data.forEach(r=>b[r.dominio]=r.data);this.banco=b;
     this.items={};this.unidades={};
-    ORDEN.forEach(d=>b[d].unidades.forEach(u=>{this.unidades[u.id]=u;u.items.forEach(it=>this.items[it.c]={...it,d,u:u.id})}));
+    this.dominios=ORDEN.filter(d=>b[d]);
+    if(!this.dominios.length)throw new Error("Tu cuenta no tiene un área asignada con contenido. Pide al administrador que revise tu área.");
+    this.dominios.forEach(d=>b[d].unidades.forEach(u=>{this.unidades[u.id]=u;u.items.forEach(it=>this.items[it.c]={...it,d,u:u.id})}));
     return b;
   }
 };
 
 /* ---------- Resultados (cálculo) ---------- */
-function itemsDelPlan(plan){const out=[];plan.bls.forEach(b=>plan.uns[b].forEach(id=>Staff.unidades[id].items.forEach(it=>out.push(Staff.items[it.c]))));return out}
+function itemsDelPlan(plan){const out=[];plan.bls.forEach(b=>plan.uns[b].forEach(id=>Staff.unidades[id]&&Staff.unidades[id].items.forEach(it=>out.push(Staff.items[it.c]))));return out}
 function creditoDe(a,it){if(it.t==="rc"){const n=a.notas?.[it.c];return n===undefined||n===null?null:n/2}const c=a.creditos?.[it.c];return c===undefined||c===null?0:c}
 function pDom(a,d){let p=0,m=0;itemsDelPlan(a.plan).forEach(it=>{if(it.d!==d)return;const c=creditoDe(a,it);if(c===null)return;const w=it.t==="rc"?2:1;p+=c*w;m+=w});return m?p/m:null}
 const nivel=x=>x<.2?0:x<.4?1:x<.6?2:x<.8?3:4;
@@ -406,7 +408,7 @@ async resultados(m){
   const {ints}=await cargarIntentos(true);
   if(!ints.length){m.innerHTML=`<div class="panel"><div class="eyebrow">Resultados</div><h1>Aún no hay evaluaciones entregadas</h1>
     <p class="muted">Cuando los estudiantes entreguen su prueba, aquí verás los niveles por dominio y paralelo, el logro por proceso y destreza, y el informe por estudiante. Los resultados se actualizan al corregir las respuestas abiertas.</p></div>`;return;}
-  const F=V._f||(V._f={par:"Todos",dom:"L"});
+  const DD=Staff.dominios;const F=V._f||(V._f={par:"Todos",dom:DD[0]});if(!DD.includes(F.dom))F.dom=DD[0];
   const pars=["Todos",...new Set(ints.map(a=>a.est.paralelo))].sort();
   const pob=ints.filter(a=>F.par==="Todos"||a.est.paralelo===F.par);
   const dist=d=>{const c=[0,0,0,0,0];let n=0;pob.forEach(a=>{const x=pDom(a,d);if(x!==null){c[nivel(x)]++;n++}});return c.map(x=>n?Math.round(x/n*100):0)};
@@ -419,7 +421,7 @@ async resultados(m){
   const proc=d=>PROC[d].map(pr=>{const e=est.filter(x=>x.d===d&&x.proc===pr&&x.p!==null);return{pr,v:e.length?e.reduce((s,x)=>s+x.p,0)/e.length:null}});
   const ao={};est.forEach(e=>{if(e.p===null)return;(ao[e.ao]??={ao:e.ao,d:e.d,s:0,n:0});ao[e.ao].s+=e.p;ao[e.ao].n++});
   const aoL=Object.values(ao).map(x=>({...x,v:x.s/x.n})).sort((a,b)=>a.v-b.v);
-  const bajo=Math.round(ORDEN.reduce((s,d)=>{const c=dist(d);return s+c[0]+c[1]},0)/4);
+  const bajo=Math.round(DD.reduce((s,d)=>{const c=dist(d);return s+c[0]+c[1]},0)/DD.length);
   m.innerHTML=`<div class="stackp">
    <div class="panel"><div class="row between"><div><div class="eyebrow">Tablero institucional</div><h1>Resultados de PRISMA 2027</h1></div>
     <div class="seg" id="spar">${pars.map(p=>`<button data-v="${esc(p)}" aria-pressed="${F.par===p}">${esc(p)}</button>`).join("")}</div></div>
@@ -430,16 +432,16 @@ async resultados(m){
     ${pendientes?`<p class="small" style="color:var(--warn)">Los niveles son provisionales hasta corregir las respuestas abiertas pendientes.</p>`:""}</div>
    <div class="panel"><h2>Niveles de desempeño por dominio</h2>
     <div class="legend">${NIV.map((n,i)=>`<span><i style="background:var(--lv${i})"></i>${i} ${n}</span>`).join("")}</div>
-    ${ORDEN.map(d=>{const c=dist(d);return `<div class="dom"><b><span class="dtag" style="background:var(--d${d})"></span>${DOM[d]}</b> <span class="muted">· ${c[0]+c[1]} % bajo el umbral</span>
+    ${DD.map(d=>{const c=dist(d);return `<div class="dom"><b><span class="dtag" style="background:var(--d${d})"></span>${DOM[d]}</b> <span class="muted">· ${c[0]+c[1]} % bajo el umbral</span>
      <div class="stack" role="img" aria-label="${DOM[d]}: ${c.map((x,i)=>NIV[i]+" "+x+"%").join(", ")}">${c.map((x,i)=>`<div style="width:${x}%;background:var(--lv${i})">${x>=7?x+"%":""}</div>`).join("")}</div></div>`}).join("")}</div>
    <div class="grid2"><div class="panel"><div class="row between"><h2>Logro por proceso</h2>
-     <div class="seg" id="sdom">${ORDEN.map(d=>`<button data-v="${d}" aria-pressed="${F.dom===d}">${DOMC[d]}</button>`).join("")}</div></div>
+     <div class="seg" id="sdom">${DD.map(d=>`<button data-v="${d}" aria-pressed="${F.dom===d}">${DOMC[d]}</button>`).join("")}</div></div>
      ${proc(F.dom).map(x=>`<div class="hbar"><span>${x.pr}</span><div class="t"><div style="width:${Math.round((x.v||0)*100)}%"></div></div><span class="v">${x.v===null?"—":Math.round(x.v*100)+" %"}</span></div>`).join("")}</div>
     <div class="panel"><h2>Destrezas AO con menor logro</h2><p class="muted small">Prioridades para el plan de mejora y la nivelación.</p>
      <div class="scroll"><table class="q"><tr><th>Destreza</th><th>Dominio</th><th>Logro</th></tr>${aoL.slice(0,8).map(x=>`<tr><td><span class="tag">${x.ao}</span></td><td>${DOMC[x.d]}</td><td>${Math.round(x.v*100)} %</td></tr>`).join("")}</table></div></div></div>
    <div class="panel"><div class="row between"><h2>Informe por estudiante</h2><button class="btn ghost sm" id="csvE">Descargar CSV</button></div>
-    <div class="scroll"><table class="q"><tr><th>Código</th><th>Estudiante</th><th>Paralelo</th>${ORDEN.map(d=>`<th>${DOMC[d]}</th>`).join("")}</tr>
-    ${pob.sort((a,b)=>(a.est.paralelo+a.est.nombre).localeCompare(b.est.paralelo+b.est.nombre)).map(a=>`<tr><td>${esc(a.estudiante_codigo)}</td><td>${esc(a.est.nombre)}</td><td>${esc(a.est.paralelo)}</td>${ORDEN.map(d=>{const x=pDom(a,d);return `<td>${x===null?"—":`<span class="flag" style="color:var(--lv${nivel(x)});border:1px solid var(--lv${nivel(x)})">${nivel(x)} · ${Math.round(x*100)} %</span>`}</td>`}).join("")}</tr>`).join("")}</table></div></div>
+    <div class="scroll"><table class="q"><tr><th>Código</th><th>Estudiante</th><th>Paralelo</th>${DD.map(d=>`<th>${DOMC[d]}</th>`).join("")}</tr>
+    ${pob.sort((a,b)=>(a.est.paralelo+a.est.nombre).localeCompare(b.est.paralelo+b.est.nombre)).map(a=>`<tr><td>${esc(a.estudiante_codigo)}</td><td>${esc(a.est.nombre)}</td><td>${esc(a.est.paralelo)}</td>${DD.map(d=>{const x=pDom(a,d);return `<td>${x===null?"—":`<span class="flag" style="color:var(--lv${nivel(x)});border:1px solid var(--lv${nivel(x)})">${nivel(x)} · ${Math.round(x*100)} %</span>`}</td>`}).join("")}</tr>`).join("")}</table></div></div>
    <div class="panel"><div class="row between"><div><div class="eyebrow">Calidad de los ítems</div><h2>Dificultad y discriminación</h2></div><button class="btn ghost sm" id="csvR">Descargar respuestas CSV</button></div>
     <p class="muted small">p = proporción de crédito (lo esperable: 0,20–0,90). r = correlación con el puntaje del dominio (revisar si es menor que 0,20). Con menos de 6 respuestas no se calcula r.</p>
     <div class="scroll"><table class="q"><tr><th>Ítem</th><th>Destreza</th><th>Proceso</th><th>Nivel</th><th>n</th><th>p</th><th>r</th><th>Estado</th></tr>
@@ -447,8 +449,8 @@ async resultados(m){
      return `<tr><td>${e.c}</td><td>${e.ao}</td><td>${e.proc}</td><td>${e.n}</td><td>${e.cnt}</td><td>${e.p===null?"—":e.p.toFixed(2)}</td><td>${e.r===null?"—":e.r.toFixed(2)}</td><td>${f}</td></tr>`}).join("")}</table></div></div></div>`;
   m.querySelectorAll("#spar button").forEach(b=>b.onclick=()=>{F.par=b.dataset.v;V.resultados(m)});
   m.querySelectorAll("#sdom button").forEach(b=>b.onclick=()=>{F.dom=b.dataset.v;V.resultados(m)});
-  $("csvE").onclick=()=>descargar("prisma2027_estudiantes.csv",["codigo;nombre;paralelo;cuadernillo;"+ORDEN.map(d=>`${DOMC[d]}_logro;${DOMC[d]}_nivel`).join(";")+";nps",
-    ...pob.map(a=>[a.estudiante_codigo,a.est.nombre,a.est.paralelo,a.cuadernillo+1,...ORDEN.flatMap(d=>{const x=pDom(a,d);return x===null?["",""]:[Math.round(x*100),nivel(x)]}),a.nps??""].join(";"))].join("\n"));
+  $("csvE").onclick=()=>descargar("prisma2027_estudiantes.csv",["codigo;nombre;paralelo;cuadernillo;"+DD.map(d=>`${DOMC[d]}_logro;${DOMC[d]}_nivel`).join(";")+";nps",
+    ...pob.map(a=>[a.estudiante_codigo,a.est.nombre,a.est.paralelo,a.cuadernillo+1,...DD.flatMap(d=>{const x=pDom(a,d);return x===null?["",""]:[Math.round(x*100),nivel(x)]}),a.nps??""].join(";"))].join("\n"));
   $("csvR").onclick=()=>descargar("prisma2027_respuestas.csv",["codigo;paralelo;cuadernillo;item;dominio;proceso;destreza;nivel;respuesta;credito",
     ...pob.flatMap(a=>itemsDelPlan(a.plan).map(it=>{const r=a.respuestas?.[it.c];const txt=it.t==="sm"&&r!==undefined?"ABCD"[r]+"(orig)":String(r??"");const c=creditoDe(a,it);
       return [a.estudiante_codigo,a.est.paralelo,a.cuadernillo+1,it.c,it.d,it.proc,it.ao,it.n,JSON.stringify(txt),c===null?"":c].join(";")}))].join("\n"));
@@ -593,12 +595,12 @@ async estudiantes(m){
 async correccion(m){
   await Staff.bancoDocente();
   const {ints}=await cargarIntentos(true);
-  const F=V._c||(V._c={dom:AREAS[Staff.perfil.area]||"L"});
+  const DD=Staff.dominios;const F=V._c||(V._c={dom:AREAS[Staff.perfil.area]||DD[0]});if(!DD.includes(F.dom))F.dom=DD[0];
   const cola=[];ints.forEach(a=>itemsDelPlan(a.plan).forEach(it=>{if(it.t==="rc"&&it.d===F.dom&&a.notas?.[it.c]===undefined)cola.push({a,it})}));
   cola.sort((x,y)=>x.it.c.localeCompare(y.it.c));
   const hechas=ints.reduce((s,a)=>s+itemsDelPlan(a.plan).filter(it=>it.t==="rc"&&it.d===F.dom&&a.notas?.[it.c]!==undefined).length,0);
   m.innerHTML=`<div class="stackp"><div class="panel"><div class="row between"><div><div class="eyebrow">Corrección con rúbrica</div><h1>Respuestas abiertas</h1></div>
-   <div class="seg" id="sd">${ORDEN.map(d=>`<button data-v="${d}" aria-pressed="${F.dom===d}">${DOMC[d]}</button>`).join("")}</div></div>
+   <div class="seg" id="sd">${DD.map(d=>`<button data-v="${d}" aria-pressed="${F.dom===d}">${DOMC[d]}</button>`).join("")}</div></div>
    <p class="muted">La corrección es anónima: no ves el nombre del estudiante. ${cola.length} pendientes y ${hechas} corregidas en ${DOMC[F.dom]}.</p></div>
    ${cola.slice(0,20).map((x,k)=>`<div class="panel" data-k="${k}"><div><span class="tag">${x.it.c}</span><span class="tag">${x.it.ao}</span><span class="tag">${x.it.n}</span><span class="tag">${x.it.proc}</span></div>
     <p class="qtext"><b>${esc(x.it.q)}</b></p>
@@ -686,23 +688,26 @@ async accesos(m){
 async sim(m){
   const banco=await Staff.bancoDocente();
   const S=V._sim||(V._sim={paso:"intro"});
-  const BL={};ORDEN.forEach(d=>["A","B"].forEach(f=>BL[d+f]=banco[d].unidades.filter(u=>u.bloque===f)));
+  const DD=Staff.dominios,area=DD.length<4;
+  const BL={};DD.forEach(d=>["A","B"].forEach(f=>BL[d+f]=banco[d].unidades.filter(u=>u.bloque===f)));
   const lista=k=>BL[k].flatMap(u=>u.items.map(i=>({...i,un:u})));
   const cuad=k=>{const rot=k%4,alt=k>>2;return ORDEN.map((_,j)=>ORDEN[(j+rot)%4]).map((d,j)=>d+(((j+alt)%2)?"B":"A"))};
   if(S.paso==="intro"){m.innerHTML=`<div class="panel" style="max-width:700px"><div class="eyebrow">Simulador · modo práctica</div><h1>Vive la prueba como un estudiante</h1>
-    <p>Responderás <b>4 bloques</b>, uno por dominio, con 5 situaciones de 3 preguntas cada una. Es el mismo formato que verán los estudiantes, pero aquí el tiempo es libre y nada se guarda como resultado.</p>
+    ${area?`<p>Simularás los <b>2 bloques de ${DOM[DD[0]].toLowerCase()}</b> (formas A y B), con 5 situaciones de 3 preguntas cada uno: los 30 ítems de tu área. Es el mismo formato que verán los estudiantes, pero aquí el tiempo es libre y nada se guarda como resultado.</p>`
+     :`<p>Responderás <b>4 bloques</b>, uno por dominio, con 5 situaciones de 3 preguntas cada una. Es el mismo formato que verán los estudiantes, pero aquí el tiempo es libre y nada se guarda como resultado.</p>`}
     <p class="muted">Al terminar verás la corrección con claves, rúbricas y destrezas AO.</p><button class="btn" id="go">Comenzar simulación</button></div>`;
-    $("go").onclick=()=>{const k=Math.floor(Math.random()*8);Object.assign(S,{paso:"prueba",k,bls:cuad(k),b:0,i:0,resp:{}});V.sim(m)};return;}
+    $("go").onclick=()=>{const k=Math.floor(Math.random()*8);Object.assign(S,{paso:"prueba",k,bls:area?[DD[0]+"A",DD[0]+"B"]:cuad(k),b:0,i:0,resp:{}});V.sim(m)};return;}
+  if(S.bls&&S.bls.some(b=>!BL[b])){V._sim={paso:"intro"};return V.sim(m);}
   if(S.paso==="prueba"){const k=S.bls[S.b],l=lista(k),it=l[S.i],v=S.resp[it.c];
     let campo=it.t==="sm"?it.o.map((o,j)=>`<label class="opt ${v===j?"sel":""}"><input type="radio" name="r" value="${j}" ${v===j?"checked":""}><span><b>${"ABCD"[j]})</b> ${esc(o)}</span></label>`).join(""):it.t==="num"?`<label for="rn">Tu respuesta</label><input id="rn" inputmode="decimal" value="${esc(v)}" style="max-width:220px">`:`<label for="rt">Tu respuesta</label><textarea id="rt">${esc(v)}</textarea>`;
     let pal="",u="";l.forEach((x,j)=>{if(x.un.id!==u){u=x.un.id;pal+=`<div class="u">${esc(x.un.titulo)}</div>`}pal+=`<button data-j="${j}" class="${S.resp[x.c]!==undefined&&S.resp[x.c]!==""?"done":""} ${j===S.i?"cur":""}">${j+1}</button>`});
-    m.innerHTML=`<div class="test"><div class="panel"><div class="row between"><div class="eyebrow"><span class="dtag" style="background:var(--d${k[0]})"></span>Bloque ${S.b+1} de 4 · ${DOM[k[0]]}</div><span class="muted small">Cuadernillo ${S.k+1}</span></div>
+    m.innerHTML=`<div class="test"><div class="panel"><div class="row between"><div class="eyebrow"><span class="dtag" style="background:var(--d${k[0]})"></span>Bloque ${S.b+1} de ${S.bls.length} · ${DOM[k[0]]}</div><span class="muted small">${area?"Forma "+k[1]:"Cuadernillo "+(S.k+1)}</span></div>
      <h2>${esc(it.un.titulo)}</h2><div class="stim">${it.un.stim}</div><p class="qtext"><b>Pregunta ${S.i+1}.</b> ${esc(it.q)}</p>${campo}
-     <p></p><div class="row"><button class="btn ghost" id="prev" ${S.i===0?"disabled":""}>Anterior</button><button class="btn" id="next">${S.i<l.length-1?"Siguiente":S.b<3?"Terminar bloque":"Ver corrección"}</button></div></div>
+     <p></p><div class="row"><button class="btn ghost" id="prev" ${S.i===0?"disabled":""}>Anterior</button><button class="btn" id="next">${S.i<l.length-1?"Siguiente":S.b<S.bls.length-1?"Terminar bloque":"Ver corrección"}</button></div></div>
      <aside class="panel"><div class="eyebrow">Preguntas</div><div class="pal">${pal}</div></aside></div>`;
     m.querySelectorAll("input[name=r]").forEach(r=>r.onchange=()=>{S.resp[it.c]=+r.value;V.sim(m)});
     if($("rn"))$("rn").oninput=e=>S.resp[it.c]=e.target.value;if($("rt"))$("rt").oninput=e=>S.resp[it.c]=e.target.value;
-    $("prev").onclick=()=>{S.i--;V.sim(m)};$("next").onclick=()=>{if(S.i<l.length-1)S.i++;else if(S.b<3){S.b++;S.i=0}else S.paso="fin";V.sim(m);window.scrollTo(0,0)};
+    $("prev").onclick=()=>{S.i--;V.sim(m)};$("next").onclick=()=>{if(S.i<l.length-1)S.i++;else if(S.b<S.bls.length-1){S.b++;S.i=0}else S.paso="fin";V.sim(m);window.scrollTo(0,0)};
     m.querySelectorAll(".pal button").forEach(b=>b.onclick=()=>{S.i=+b.dataset.j;V.sim(m)});return;}
   let h=`<div class="stackp"><div class="panel"><div class="eyebrow">Corrección</div><h1>Tu simulación</h1><p class="muted">Cada ítem con su clave, su rúbrica y su destreza. Las preguntas abiertas se califican con rúbrica.</p></div>`;
   S.bls.forEach(k=>{h+=`<div class="panel"><h2><span class="dtag" style="background:var(--d${k[0]})"></span>${DOM[k[0]]}</h2>`;
@@ -711,13 +716,13 @@ async sim(m){
       if(it.t==="sm")h+=it.o.map((o,j)=>`<div class="opt ${j===it.k?"key":""} ${v===j&&j!==it.k?"sel":""}" style="cursor:default"><span><b>${"ABCD"[j]})</b> ${esc(o)} ${j===it.k?"✓":""}</span></div>`).join("");
       else if(it.t==="num")h+=`<p>Tu respuesta: <b>${esc(v||"—")}</b> · Clave: <b>${esc(it.k)}</b>${it.tol?` (±${it.tol})`:""}</p>`;
       else h+=`<p>Tu respuesta: ${esc(v||"—")}</p>`+it.r.map((r,n)=>`<div class="rub"><span class="cred">${n}</span>${esc(r)}</div>`).join("");h+=`</div>`});h+=`</div>`});
-  m.innerHTML=h+`<div class="panel"><button class="btn" id="otra">Repetir con otro cuadernillo</button></div></div>`;$("otra").onclick=()=>{V._sim={paso:"intro"};V.sim(m)};
+  m.innerHTML=h+`<div class="panel"><button class="btn" id="otra">Repetir la simulación</button></div></div>`;$("otra").onclick=()=>{V._sim={paso:"intro"};V.sim(m)};
 },
 async revision(m){
   const banco=await Staff.bancoDocente();
-  if(!V._rev)V._rev=AREAS[Staff.perfil.area]||"L";const d=V._rev;
+  const DD=Staff.dominios;if(!V._rev||!DD.includes(V._rev))V._rev=DD.includes(AREAS[Staff.perfil.area])?AREAS[Staff.perfil.area]:DD[0];const d=V._rev;
   m.innerHTML=`<div class="stackp"><div class="panel"><div class="row between"><div><div class="eyebrow">Revisión docente</div><h2>Banco de ítems con claves</h2></div>
-   <div class="seg">${ORDEN.map(x=>`<button data-d="${x}" aria-pressed="${d===x}">${DOMC[x]}</button>`).join("")}</div></div>
+   <div class="seg">${DD.length>1?DD.map(x=>`<button data-d="${x}" aria-pressed="${d===x}">${DOMC[x]}</button>`).join(""):""}</div></div>
    <p class="muted small">Material reservado para docentes. No debe compartirse con estudiantes antes de la aplicación.</p></div>
    ${banco[d].unidades.map(u=>`<div class="panel"><div class="eyebrow">${u.id} · Bloque ${u.bloque}${u.subdominio?" · "+u.subdominio:""}</div><h2>${esc(u.titulo)}</h2><div class="stim">${u.stim}</div>
     ${u.items.map(it=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div><span class="tag">${it.c}</span><span class="tag">${it.ao}</span><span class="tag">${it.n}</span><span class="tag">${it.proc}</span><span class="tag">${it.dif}</span></div><p class="qtext"><b>${esc(it.q)}</b></p>
