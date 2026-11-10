@@ -143,6 +143,7 @@ function descargar(nombre,texto,tipo="text/csv;charset=utf-8"){const a=document.
 const fmtFecha=d=>d?new Date(d).toLocaleString("es-EC",{dateStyle:"medium",timeStyle:"short"}):"—";
 
 /* ===================== Enrutador ===================== */
+sb.auth.onAuthStateChange(ev=>{if(ev==="PASSWORD_RECOVERY")Staff.recuperando=true;});
 let timers=[];
 function limpiarTemporizadores(){timers.forEach(t=>clearInterval(t));timers=[];}
 window.addEventListener("hashchange",arrancar);
@@ -302,18 +303,24 @@ const Staff={perfil:null,banco:null,tab:null,
     if(error||!data){await sb.auth.signOut();return this.login("Tu cuenta no tiene acceso a PRISMA. Pide a tu administrador que te registre.");}
     if(!data.activo){await sb.auth.signOut();return this.login("Tu cuenta está desactivada. Contacta a tu administrador.");}
     this.perfil=data;
-    if(data.debe_cambiar_clave)return this.cambiarClave();
+    if(data.debe_cambiar_clave||Staff.recuperando)return this.cambiarClave();
     if(!this.registrado){this.registrado=true;try{await sb.from("accesos").insert({perfil_id:data.id,correo:data.correo,evento:"ingreso"});await sb.from("perfiles").update({ultimo_ingreso_en:new Date().toISOString()}).eq("id",data.id);}catch(e){}}
     this.app();
   },
   login(aviso){
+    if(!aviso&&/error_description=/.test(location.hash)){const d=decodeURIComponent((location.hash.match(/error_description=([^&]*)/)||[])[1]||"").replace(/\+/g," ");
+      aviso=/expired|invalid/i.test(d)?"El enlace del correo ya venció o ya se usó. Pide a tu administrador que te reenvíe el acceso.":"No se pudo abrir el enlace: "+d;history.replaceState(null,"",location.pathname);}
     root.innerHTML=`<div class="center"><div class="panel card-sm">${marca()}
      <h1 style="margin-top:18px">Acceso docente</h1><p class="muted">Ingresa con el correo y la contraseña que te entregó tu administrador.</p>
      ${aviso?`<div class="msg err">${esc(aviso)}</div>`:""}
      <form id="f"><label for="e">Correo</label><input id="e" type="email" autocomplete="username" required>
      <label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password" required>
-     <div id="m"></div><p></p><button class="btn" id="b">Ingresar</button></form>
+     <div id="m"></div><p></p><div class="row between"><button class="btn" id="b">Ingresar</button><a href="#" id="olv" class="small" style="color:var(--cyan)">¿Olvidaste tu contraseña?</a></div></form>
      <p class="foot muted">¿Eres estudiante y vas a rendir la prueba? <a href="#estudiante">Ingresa aquí</a></p></div></div>`;
+    $("olv").onclick=async ev=>{ev.preventDefault();const correo=$("e").value.trim().toLowerCase();
+      if(!correo){$("m").innerHTML=`<div class="msg info">Escribe tu correo arriba y vuelve a pulsar «¿Olvidaste tu contraseña?».</div>`;return;}
+      const {error}=await sb.auth.resetPasswordForEmail(correo,{redirectTo:location.origin+location.pathname});
+      $("m").innerHTML=error?`<div class="msg err">No se pudo enviar el correo. Pide ayuda a tu administrador.</div>`:`<div class="msg ok">Si el correo está registrado, recibirás un enlace para crear una contraseña nueva.</div>`;};
     $("f").onsubmit=async e=>{e.preventDefault();const b=$("b");b.disabled=true;b.textContent="Ingresando…";$("m").innerHTML="";
       const {error}=await sb.auth.signInWithPassword({email:$("e").value.trim().toLowerCase(),password:$("p").value});
       if(error){$("m").innerHTML=`<div class="msg err">Correo o contraseña incorrectos.</div>`;b.disabled=false;b.textContent="Ingresar";return;}
@@ -329,7 +336,7 @@ const Staff={perfil:null,banco:null,tab:null,
       if($("p1").value!==$("p2").value){$("m").innerHTML=`<div class="msg err">Las contraseñas no coinciden.</div>`;return;}
       $("b").disabled=true;const {error}=await sb.auth.updateUser({password:$("p1").value});
       if(error){$("m").innerHTML=`<div class="msg err">${esc(error.message)}</div>`;$("b").disabled=false;return;}
-      await sb.from("perfiles").update({debe_cambiar_clave:false}).eq("id",this.perfil.id);await this.cargarPerfil();};
+      await sb.from("perfiles").update({debe_cambiar_clave:false}).eq("id",this.perfil.id);Staff.recuperando=false;await this.cargarPerfil();};
   },
   app(){
     limpiarTemporizadores();
@@ -535,12 +542,25 @@ async estudiantes(m){
   let todos=[],ints={};
   const pintar=()=>{const q=$("busca").value.trim().toLowerCase();const l=todos.filter(e=>!q||e.nombre.toLowerCase().includes(q)||e.codigo.toLowerCase().includes(q));
     $("lst").innerHTML=todos.length?`<p class="muted small">${todos.length} estudiantes · ${Object.values(ints).filter(f=>f==="entregado").length} ya entregaron</p><table class="q"><tr><th>Código</th><th>Nombre</th><th>Paralelo</th><th>Prueba</th><th>Estado</th><th></th></tr>
-    ${l.slice(0,300).map(e=>`<tr><td style="font-family:var(--mono)">${esc(e.codigo)}</td><td>${esc(e.nombre)}</td><td>${esc(e.paralelo)}</td>
+    ${l.slice(0,300).map(e=>`<tr data-c="${esc(e.codigo)}"><td style="font-family:var(--mono)">${esc(e.codigo)}</td><td>${esc(e.nombre)}</td><td>${esc(e.paralelo)}</td>
      <td>${ints[e.codigo]==="entregado"?`<span class="flag ok">Entregó</span>`:ints[e.codigo]?`<span class="flag info">En curso</span>`:`<span class="muted small">Pendiente</span>`}</td>
      <td>${e.activo?`<span class="flag ok">Habilitado</span>`:`<span class="flag off">Inhabilitado</span>`}</td>
-     <td><button class="btn ghost sm tog" data-c="${esc(e.codigo)}" data-a="${e.activo?0:1}">${e.activo?"Inhabilitar":"Habilitar"}</button></td></tr>`).join("")}</table>${l.length>300?`<p class="muted small">Se muestran 300 de ${l.length}. Usa el buscador.</p>`:""}`
+     <td><div class="row"><button class="btn ghost sm edE" data-c="${esc(e.codigo)}">Editar</button><button class="btn ghost sm tog" data-c="${esc(e.codigo)}" data-a="${e.activo?0:1}">${e.activo?"Inhabilitar":"Habilitar"}</button><button class="btn ghost sm delE" data-c="${esc(e.codigo)}" style="color:var(--bad)">Eliminar</button></div><div class="rsE"></div></td></tr>`).join("")}</table>${l.length>300?`<p class="muted small">Se muestran 300 de ${l.length}. Usa el buscador.</p>`:""}`
     :`<p class="muted">Aún no hay estudiantes. Sube la lista arriba.</p>`;
-    $("lst").querySelectorAll(".tog").forEach(b=>b.onclick=async()=>{b.disabled=true;await sb.from("estudiantes").update({activo:b.dataset.a==="1"}).eq("codigo",b.dataset.c);listar();});};
+    $("lst").querySelectorAll(".tog").forEach(b=>b.onclick=async()=>{b.disabled=true;await sb.from("estudiantes").update({activo:b.dataset.a==="1"}).eq("codigo",b.dataset.c);listar();});
+    const trDe=c=>[...$("lst").querySelectorAll("tr[data-c]")].find(t=>t.dataset.c===c);
+    $("lst").querySelectorAll(".delE").forEach(b=>b.onclick=()=>{const c=b.dataset.c,tr=trDe(c),box=tr.querySelector(".rsE");
+      box.innerHTML=`<div class="msg err">${ints[c]?"Este estudiante ya rindió o está rindiendo la prueba: <b>se borrarán también sus respuestas</b>. ":""}¿Eliminar a ${esc(c)}?
+       <div class="row" style="margin-top:8px"><button class="btn danger sm si">Sí, eliminar</button><button class="btn ghost sm no">Cancelar</button></div></div>`;
+      box.querySelector(".no").onclick=()=>box.innerHTML="";
+      box.querySelector(".si").onclick=async()=>{const {error}=await sb.from("estudiantes").delete().eq("codigo",c);if(error)box.innerHTML=`<div class="msg err">${esc(error.message)}</div>`;else listar();};});
+    $("lst").querySelectorAll(".edE").forEach(b=>b.onclick=()=>{const c=b.dataset.c,e=todos.find(x=>x.codigo===c),tr=trDe(c);
+      tr.innerHTML=`<td colspan="6"><form class="fields"><div><label>Código</label><input name="k" required value="${esc(e.codigo)}"></div><div><label>Nombre</label><input name="n" required value="${esc(e.nombre)}"></div>
+       <div><label>Paralelo</label><input name="p" required value="${esc(e.paralelo)}"></div><div style="align-self:end"><div class="row"><button class="btn sm">Guardar</button><button type="button" class="btn ghost sm cn">Cancelar</button></div></div></form><div class="me"></div></td>`;
+      const f=tr.querySelector("form");f.querySelector(".cn").onclick=pintar;
+      f.onsubmit=async ev=>{ev.preventDefault();const nuevo=f.k.value.trim().toUpperCase();
+        const {error}=await sb.from("estudiantes").update({codigo:nuevo,nombre:f.n.value.trim(),paralelo:f.p.value.trim()}).eq("codigo",c);
+        if(error)tr.querySelector(".me").innerHTML=`<div class="msg err">${/duplicate|unique/i.test(error.message)?"Ese código ya pertenece a otro estudiante.":esc(error.message)}</div>`;else listar();};});};
   const listar=async()=>{const [{data:e},{data:i}]=await Promise.all([sb.from("estudiantes").select("*").order("paralelo").order("nombre"),sb.from("intentos").select("estudiante_codigo,fase")]);
     todos=e||[];ints=Object.fromEntries((i||[]).map(x=>[x.estudiante_codigo,x.fase]));pintar();};
   $("busca").oninput=pintar;listar();
@@ -575,27 +595,52 @@ async correccion(m){
 
 /* ---------- Docentes ---------- */
 async docentes(m){
+  const AREAS_OPC=[["Lectura","Lengua y Literatura"],["Matematica","Matemática"],["Ciencias","Ciencias Naturales"],["Ciudadania","Estudios Sociales"],["General","General / coordinación"]];
+  const opc=sel=>AREAS_OPC.map(([v,t])=>`<option value="${v}" ${v===sel?"selected":""}>${t}</option>`).join("");
   m.innerHTML=`<div class="stackp"><div class="panel"><div class="eyebrow">Administración</div><h2>Registrar un docente</h2>
-   <p class="muted small">Se crea la cuenta con una contraseña temporal que debes entregarle. El docente la cambia en su primer ingreso.</p>
    <form id="f"><div class="fields"><div><label for="n">Nombre completo</label><input id="n" required></div>
     <div><label for="c">Correo institucional</label><input id="c" type="email" required></div>
-    <div><label for="a">Área</label><select id="a"><option value="Lectura">Lengua y Literatura</option><option value="Matematica">Matemática</option><option value="Ciencias">Ciencias Naturales</option><option value="Ciudadania">Estudios Sociales</option><option value="General">General / coordinación</option></select></div></div>
-    <p></p><button class="btn" id="b">Registrar</button></form><div id="m"></div></div>
+    <div><label for="a">Área</label><select id="a">${opc("Lectura")}</select></div></div>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="inv" checked style="width:auto"> Enviar invitación por correo desde notificacionesonline@anai.edu.ec</label>
+    <p class="muted small">Con invitación, el docente recibe un enlace para crear su contraseña. Sin invitación, verás una contraseña temporal para entregársela tú.</p>
+    <button class="btn" id="b">Registrar</button></form><div id="m"></div></div>
    <div class="panel"><h2>Docentes registrados</h2><div id="lst" class="scroll"><p class="muted">Cargando…</p></div></div></div>`;
-  const mostrarClave=(r,dest)=>{dest.innerHTML=`<div class="msg ok">Contraseña temporal de <b>${esc(r.correo)}</b>: <b style="font-family:var(--mono);font-size:16px">${esc(r.clave_temporal)}</b> <button class="btn ghost sm" id="cp">Copiar</button><br>Entrégasela junto con el enlace del sitio. No se vuelve a mostrar.</div>`;
-    $("cp").onclick=()=>navigator.clipboard.writeText(r.clave_temporal).then(()=>$("cp").textContent="Copiada",()=>{})};
-  $("f").onsubmit=async e=>{e.preventDefault();const b=$("b");b.disabled=true;$("m").innerHTML="";
-    try{const r=await llamar("crear_docente",{nombre:$("n").value.trim(),correo:$("c").value.trim().toLowerCase(),area:$("a").value},true);mostrarClave(r,$("m"));$("f").reset();listar();}
-    catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}b.disabled=false;};
-  const listar=async()=>{const {data,error}=await sb.from("perfiles").select("*").eq("rol","docente").order("nombre");
-    if(error){$("lst").innerHTML=`<div class="msg err">${esc(error.message)}</div>`;return;}
-    $("lst").innerHTML=data.length?`<table class="q"><tr><th>Nombre</th><th>Correo</th><th>Área</th><th>Último ingreso</th><th>Estado</th><th></th></tr>
-    ${data.map(x=>`<tr><td>${esc(x.nombre)}</td><td>${esc(x.correo)}</td><td>${esc(x.area)}</td><td class="small">${x.debe_cambiar_clave?`<span class="flag warn">Aún no ingresa</span>`:fmtFecha(x.ultimo_ingreso_en)}</td>
+  const mostrarRes=(r,dest)=>{
+    if(r.invitado){dest.innerHTML=`<div class="msg ok">Se envió la invitación a <b>${esc(r.correo)}</b>. El docente debe abrir el enlace del correo para crear su contraseña.</div>`;return;}
+    dest.innerHTML=`${r.aviso?`<div class="msg err">${esc(r.aviso)}</div>`:""}<div class="msg ok">Contraseña temporal de <b>${esc(r.correo)}</b>: <b style="font-family:var(--mono);font-size:16px">${esc(r.clave_temporal)}</b> <button class="btn ghost sm cp">Copiar</button><br>Entrégasela junto con el enlace del sitio. No se vuelve a mostrar.</div>`;
+    dest.querySelector(".cp").onclick=e=>navigator.clipboard.writeText(r.clave_temporal).then(()=>e.target.textContent="Copiada",()=>{});};
+  $("f").onsubmit=async e=>{e.preventDefault();const b=$("b");b.disabled=true;b.textContent="Registrando…";$("m").innerHTML="";
+    try{const r=await llamar("crear_docente",{nombre:$("n").value.trim(),correo:$("c").value.trim().toLowerCase(),area:$("a").value,invitar:$("inv").checked},true);mostrarRes(r,$("m"));$("n").value="";$("c").value="";listar();}
+    catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}b.disabled=false;b.textContent="Registrar";};
+  let datos=[];
+  const fila=x=>`<tr id="tr${x.id}"><td>${esc(x.nombre)}</td><td>${esc(x.correo)}</td><td>${esc((AREAS_OPC.find(a=>a[0]===x.area)||[0,x.area])[1])}</td>
+     <td class="small">${x.debe_cambiar_clave?`<span class="flag warn">Aún no ingresa</span>`:fmtFecha(x.ultimo_ingreso_en)}</td>
      <td>${x.activo?`<span class="flag ok">Activo</span>`:`<span class="flag off">Inactivo</span>`}</td>
-     <td><div class="row"><button class="btn ghost sm est" data-id="${x.id}" data-a="${x.activo?0:1}">${x.activo?"Desactivar":"Activar"}</button><button class="btn ghost sm rst" data-id="${x.id}">Nueva contraseña</button></div><div class="rs" id="rs${x.id}"></div></td></tr>`).join("")}</table>`
-    :`<p class="muted">Aún no has registrado docentes.</p>`;
-    $("lst").querySelectorAll(".est").forEach(b=>b.onclick=async()=>{b.disabled=true;await sb.from("perfiles").update({activo:b.dataset.a==="1"}).eq("id",b.dataset.id);listar();});
-    $("lst").querySelectorAll(".rst").forEach(b=>b.onclick=async()=>{b.disabled=true;try{const r=await llamar("restablecer_clave",{id:b.dataset.id},true);mostrarClave(r,$("rs"+b.dataset.id));}catch(err){$("rs"+b.dataset.id).innerHTML=`<div class="msg err">${esc(err.message)}</div>`;b.disabled=false;}});};
+     <td><div class="row"><button class="btn ghost sm ed" data-id="${x.id}">Editar</button><button class="btn ghost sm env" data-id="${x.id}">Reenviar acceso</button><button class="btn ghost sm rst" data-id="${x.id}">Contraseña temporal</button>
+      <button class="btn ghost sm est" data-id="${x.id}" data-a="${x.activo?0:1}">${x.activo?"Desactivar":"Activar"}</button><button class="btn ghost sm del" data-id="${x.id}" style="color:var(--bad)">Eliminar</button></div><div id="rs${x.id}"></div></td></tr>`;
+  const listar=async()=>{const {data,error}=await sb.from("perfiles").select("*").eq("rol","docente").order("nombre");
+    if(error){$("lst").innerHTML=`<div class="msg err">${esc(error.message)}</div>`;return;}datos=data;
+    $("lst").innerHTML=data.length?`<table class="q"><tr><th>Nombre</th><th>Correo</th><th>Área</th><th>Último ingreso</th><th>Estado</th><th>Acciones</th></tr>${data.map(fila).join("")}</table>`:`<p class="muted">Aún no has registrado docentes.</p>`;
+    const L=$("lst"),rs=id=>$("rs"+id);
+    L.querySelectorAll(".est").forEach(b=>b.onclick=async()=>{b.disabled=true;await sb.from("perfiles").update({activo:b.dataset.a==="1"}).eq("id",b.dataset.id);listar();});
+    L.querySelectorAll(".rst").forEach(b=>b.onclick=async()=>{b.disabled=true;try{mostrarRes(await llamar("restablecer_clave",{id:b.dataset.id},true),rs(b.dataset.id));}catch(err){rs(b.dataset.id).innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}b.disabled=false;});
+    L.querySelectorAll(".env").forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent="Enviando…";
+      try{const r=await llamar("reenviar_acceso",{id:b.dataset.id},true);rs(b.dataset.id).innerHTML=`<div class="msg ok">Se envió a ${esc(r.correo)} un enlace para crear su contraseña.</div>`;}
+      catch(err){rs(b.dataset.id).innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}b.disabled=false;b.textContent="Reenviar acceso";});
+    L.querySelectorAll(".del").forEach(b=>b.onclick=()=>{const x=datos.find(d=>d.id===b.dataset.id);
+      rs(x.id).innerHTML=`<div class="msg err">¿Eliminar la cuenta de <b>${esc(x.correo)}</b>? Ya no podrá ingresar. Las correcciones que hizo se conservan.
+       <div class="row" style="margin-top:8px"><button class="btn danger sm si">Sí, eliminar</button><button class="btn ghost sm no">Cancelar</button></div></div>`;
+      rs(x.id).querySelector(".no").onclick=()=>rs(x.id).innerHTML="";
+      rs(x.id).querySelector(".si").onclick=async e=>{e.target.disabled=true;try{await llamar("eliminar_docente",{id:x.id},true);listar();}catch(err){rs(x.id).innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}};});
+    L.querySelectorAll(".ed").forEach(b=>b.onclick=()=>{const x=datos.find(d=>d.id===b.dataset.id);
+      $("tr"+x.id).innerHTML=`<td colspan="6"><form class="fields" id="fe${x.id}"><div><label>Nombre completo</label><input name="n" required value="${esc(x.nombre)}"></div>
+       <div><label>Correo institucional</label><input name="c" type="email" required value="${esc(x.correo)}"></div><div><label>Área</label><select name="a">${opc(x.area)}</select></div>
+       <div style="align-self:end"><div class="row" style="margin-top:8px"><button class="btn sm">Guardar</button><button type="button" class="btn ghost sm cn">Cancelar</button></div></div></form>
+       <p class="muted small">Si cambias el correo, el docente ingresará con el nuevo. Su contraseña no cambia.</p><div class="me"></div></td>`;
+      const f=$("fe"+x.id);f.querySelector(".cn").onclick=listar;
+      f.onsubmit=async e=>{e.preventDefault();const bt=f.querySelector(".btn");bt.disabled=true;
+        try{await llamar("editar_docente",{id:x.id,nombre:f.n.value.trim(),correo:f.c.value.trim().toLowerCase(),area:f.a.value},true);listar();}
+        catch(err){f.parentElement.querySelector(".me").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;bt.disabled=false;}};});};
   listar();
 },
 async accesos(m){
