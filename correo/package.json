@@ -1,0 +1,9 @@
+{
+  "name": "prisma-correo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Servicio de envío de correos de PRISMA 2027 por SMTP de Microsoft 365",
+  "main": "servidor.js",
+  "engines": { "node": ">=18" },
+  "dependencies": { "nodemailer": "6.9.16" }
+}
