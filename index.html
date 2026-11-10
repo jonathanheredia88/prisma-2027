@@ -1,44 +1,55 @@
 <!doctype html>
 <html lang="es"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PRISMA 2027</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<title>PRISMA 2027 · ANAI Online</title>
+<link rel="icon" href="logo-icono.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
+/* Una columna de trabajo con barra institucional; la prueba usa enunciado + paleta lateral */
 :root{
   --bg:#f4f7fa;--surface:#fff;--fg:#0f2233;--muted:#5a6b7b;--line:#d7e0e8;
   --navy:#0a3a63;--cyan:#0093c7;--cyan-soft:#e2f3fa;
   --ok:#1f7a4d;--warn:#9a5c00;--bad:#b3261e;
+  --dL:#0093c7;--dM:#d99a14;--dC:#2f9a63;--dS:#c4502a;
   --lv0:#b3261e;--lv1:#d9822b;--lv2:#c9a400;--lv3:#3d9a6b;--lv4:#1f6f99;
   --sans:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
 }
 @media(prefers-color-scheme:dark){:root{--bg:#0c1620;--surface:#13212e;--fg:#e4edf4;--muted:#93a5b5;--line:#25384a;--navy:#cfe4f5;--cyan:#38bdf0;--cyan-soft:#12354a;--warn:#e0a640;--bad:#ef6b62;--ok:#5cc48d;color-scheme:dark}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--sans)}
-.wrap{max-width:1120px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-left,0px)) 48px}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-bottom:2px solid var(--cyan);padding-bottom:12px;margin-bottom:20px}
-.brand b{color:var(--navy);font-size:18px}.brand span{display:block;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.wrap{max-width:1160px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-bottom:2px solid var(--cyan);padding-bottom:12px;margin-bottom:18px}
+.logo{display:flex;align-items:center;gap:10px;color:var(--navy);text-decoration:none}
+.logo svg{flex:none}
+.logo b{display:block;font:700 19px/1.1 var(--sans);letter-spacing:.02em}
+.logo span{display:block;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:3px}
-.tabs button{border:0;background:none;color:var(--muted);padding:7px 14px;border-radius:6px;font:600 14px var(--sans);cursor:pointer}
+.tabs button{border:0;background:none;color:var(--muted);padding:7px 12px;border-radius:6px;font:600 14px var(--sans);cursor:pointer}
 .tabs button[aria-pressed=true]{background:var(--navy);color:var(--bg)}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;min-width:0}
 .stackp{display:grid;gap:16px}
-h1{font-size:24px;margin:0 0 6px;color:var(--navy)}h2{font-size:18px;margin:0 0 10px;color:var(--navy)}
-.muted{color:var(--muted)}.eyebrow{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+h1{font-size:24px;margin:0 0 6px;color:var(--navy);text-wrap:balance}h2{font-size:18px;margin:0 0 10px;color:var(--navy)}
+.muted{color:var(--muted)}.small{font-size:13px}
+.eyebrow{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan)}
 label{display:block;font-weight:600;margin:12px 0 4px}
 input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font:15px var(--sans)}
 textarea{min-height:120px}
-.btn{border:0;background:var(--navy);color:var(--bg);padding:10px 18px;border-radius:6px;font:600 14px var(--sans);cursor:pointer}
+.btn{border:0;background:var(--navy);color:var(--bg);padding:10px 18px;border-radius:6px;font:600 14px var(--sans);cursor:pointer;text-decoration:none;display:inline-block}
 .btn.ghost{background:none;color:var(--navy);border:1px solid var(--line)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn.danger{background:var(--bad);color:#fff}
 .btn:disabled{opacity:.45;cursor:default}
-.btn:focus-visible,.tabs button:focus-visible,.opt:focus-within,.pal button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.btn:focus-visible,.tabs button:focus-visible,.opt:focus-within,.pal button:focus-visible,.seg button:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.test{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:16px}
-@media(max-width:800px){.test{grid-template-columns:1fr}}
-.bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:14px}
-.timer{font:500 20px var(--mono);color:var(--navy)}.timer.low{color:var(--bad)}
-.stim{background:var(--cyan-soft);border-radius:8px;padding:14px 16px;margin:10px 0 18px;overflow-x:auto;max-width:72ch}
-.stim table{border-collapse:collapse;margin:8px 0}.stim td,.stim th{border:1px solid var(--line);padding:4px 10px;text-align:center}
-.qtext,.opt{max-width:72ch}
+.between{justify-content:space-between}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0 14px}
+.test{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:16px}
+@media(max-width:820px){.test{grid-template-columns:1fr}}
+.timer{font:600 22px var(--mono);font-variant-numeric:tabular-nums;color:var(--navy)}.timer.low{color:var(--bad)}
+.stim{background:var(--cyan-soft);border-radius:8px;padding:14px 16px;margin:10px 0 18px;overflow-x:auto;max-width:74ch}
+.stim p{margin:.5em 0}.stim table{border-collapse:collapse;margin:8px 0}.stim td,.stim th{border:1px solid var(--line);padding:4px 10px;text-align:center}
+.qtext,.opt{max-width:74ch}
 .opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0;cursor:pointer;font-weight:400}
 .opt input{width:auto;margin-top:4px}.opt.sel{border-color:var(--cyan);background:var(--cyan-soft)}
 .opt.key{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
@@ -47,267 +58,615 @@ textarea{min-height:120px}
 .pal button.done{background:var(--navy);color:var(--bg)}.pal button.cur{outline:2px solid var(--cyan)}
 .pal .u{grid-column:1/-1;font:500 11px var(--mono);color:var(--muted);margin-top:6px}
 .tag{display:inline-block;font:500 11px var(--mono);padding:2px 7px;border-radius:4px;background:var(--cyan-soft);color:var(--navy);margin:0 4px 2px 0}
-table.q{width:100%;border-collapse:collapse;font-size:14px}table.q td,table.q th{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
-table.q th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.dtag{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:0}
+table.q{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+table.q td,table.q th{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+table.q th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
 .scroll{overflow-x:auto}
-.flag{font:600 11px var(--mono);padding:2px 6px;border-radius:4px}
-.flag.ok{color:var(--ok);border:1px solid var(--ok)}.flag.off{color:var(--bad);border:1px solid var(--bad)}
+.flag{font:600 11px var(--mono);padding:2px 6px;border-radius:4px;white-space:nowrap}
+.flag.ok{color:var(--ok);border:1px solid var(--ok)}.flag.off{color:var(--bad);border:1px solid var(--bad)}.flag.warn{color:var(--warn);border:1px solid var(--warn)}.flag.info{color:var(--cyan);border:1px solid var(--cyan)}
 .seg{display:flex;flex-wrap:wrap;gap:4px}.seg button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;padding:5px 10px;font:500 13px var(--sans);cursor:pointer}
 .seg button[aria-pressed=true]{background:var(--navy);color:var(--bg);border-color:var(--navy)}
-.center{min-height:70vh;display:grid;place-items:center}
-.card-sm{width:100%;max-width:440px}
+.center{min-height:72vh;display:grid;place-items:center}
+.card-sm{width:100%;max-width:460px}
 .msg{padding:10px 12px;border-radius:6px;font-size:14px;margin:10px 0}
 .msg.err{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
 .msg.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.msg.info{background:var(--cyan-soft);color:var(--navy)}
 .rub{border-left:3px solid var(--cyan);padding:4px 0 4px 12px;margin:6px 0;font-size:14px}
 .cred{display:inline-block;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font:600 12px var(--mono);background:var(--navy);color:var(--bg);margin-right:8px}
-.notice{font-size:13px;color:var(--warn);font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:14px 0 6px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:12px}.kpi b{display:block;font:600 24px var(--mono);font-variant-numeric:tabular-nums;color:var(--navy)}
+.stack{display:flex;height:26px;border-radius:5px;overflow:hidden;margin:6px 0 2px;background:var(--line)}
+.stack div{display:flex;align-items:center;justify-content:center;font:500 11px var(--mono);color:#fff;min-width:0}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.dom{padding:12px 0;border-top:1px solid var(--line)}
+.hbar{display:grid;grid-template-columns:minmax(120px,220px) minmax(0,1fr) 48px;gap:10px;align-items:center;margin:6px 0;font-size:14px}
+.hbar .t{height:14px;background:var(--line);border-radius:3px;overflow:hidden}.hbar .t div{height:100%;background:var(--cyan)}
+.hbar .v{font:500 13px var(--mono);text-align:right}
+.likert{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.likert label{font-weight:400;margin:0;border:1px solid var(--line);border-radius:6px;padding:6px;text-align:center;font-size:13px;cursor:pointer}
+.likert input{position:absolute;opacity:0;width:1px}.likert label:has(input:checked){border-color:var(--cyan);background:var(--cyan-soft);font-weight:600}
+@media(max-width:520px){.likert{grid-template-columns:1fr 1fr}}
+.codigo-big{font:600 clamp(56px,14vw,160px)/1 var(--mono);letter-spacing:.12em;color:var(--navy);text-align:center}
+.proyector{position:fixed;inset:0;background:var(--bg);z-index:50;display:grid;place-items:center;padding:24px;text-align:center}
+.saved{font:500 12px var(--mono);color:var(--muted)}
+.inline-confirm{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.foot{margin-top:28px;text-align:center;font-size:13px}
+.foot a{color:var(--cyan)}
+pre.csv{max-height:160px;overflow:auto;font:12px var(--mono);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;white-space:pre}
+.est-noselect .stim,.est-noselect .qtext{user-select:none}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
 <div class="wrap" id="root"><div class="center"><p class="muted">Cargando PRISMA 2027…</p></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
+"use strict";
 const SB_URL="https://rzyyckpsvjzdfdrouyxw.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6eXlja3Bzdmp6ZGZkcm91eXh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQyNzc1NzYsImV4cCI6MjEwOTg1MzU3Nn0.jw6RdcwFS8oWylCRcFTzu-YVJI_7DSgqsss-xkj7tEA";
 const API=SB_URL+"/functions/v1/prisma";
 const sb=window.supabase.createClient(SB_URL,SB_KEY);
 const root=document.getElementById("root");
+const $=id=>document.getElementById(id);
 const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const el=h=>{const d=document.createElement("div");d.innerHTML=h;return d};
 
 const DOM={L:"Competencia lectora",M:"Competencia matemática",C:"Competencia científica",S:"Ciudadanía y ciencias sociales"};
 const DOMC={L:"Lectura",M:"Matemática",C:"Ciencias",S:"Ciudadanía"};
 const PROC={L:["Localizar","Comprender","Evaluar y reflexionar"],M:["Formular","Emplear","Interpretar"],C:["Explicar fenómenos","Evaluar y diseñar indagación","Interpretar datos"],S:["Conocer y comprender","Analizar fuentes","Razonar y proponer"]};
 const ORDEN=["L","M","C","S"],NIV=["Inicial","Elemental","Básico","Satisfactorio","Destacado"];
 const AREAS={Lectura:"L",Matematica:"M",Ciencias:"C",Ciudadania:"S",General:null};
+const CTX=["Tengo un lugar fijo y tranquilo para estudiar en casa.","Puedo organizar mis tareas sin que me lo recuerden.","Si no entiendo algo, sé dónde buscar ayuda.","Las instrucciones del aula virtual son claras.","La retroalimentación de mis docentes me ayuda a mejorar.","Me siento parte de mi curso aunque estudie en línea.","Verifico la información que me da una IA antes de usarla.","Al final del día me siento muy cansado por las pantallas."];
+const LIK=["Muy en desacuerdo","En desacuerdo","De acuerdo","Muy de acuerdo"];
 
-let estado={perfil:null,banco:null};
-let S={};
+/* Logo: un prisma que descompone un rayo en los cuatro dominios */
+function logoSVG(s=40){return `<svg width="${s}" height="${s}" viewBox="0 0 48 48" role="img" aria-label="Logo PRISMA 2027">
+ <line x1="2" y1="27" x2="17" y2="24" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+ <path d="M24 6 L40 38 H8 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+ <line x1="31" y1="22" x2="47" y2="15" stroke="var(--dL)" stroke-width="2.6" stroke-linecap="round"/>
+ <line x1="32" y1="24.5" x2="47" y2="21" stroke="var(--dM)" stroke-width="2.6" stroke-linecap="round"/>
+ <line x1="33" y1="27" x2="47" y2="27" stroke="var(--dC)" stroke-width="2.6" stroke-linecap="round"/>
+ <line x1="34" y1="29.5" x2="47" y2="33" stroke="var(--dS)" stroke-width="2.6" stroke-linecap="round"/></svg>`}
+function marca(sub="ANAI Online · 10.º EGB"){return `<div class="logo">${logoSVG()}<div><b>PRISMA 2027</b><span>${esc(sub)}</span></div></div>`}
 
-async function api(accion,datos){
-  const {data:{session}}=await sb.auth.getSession();
-  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json",
-    "Authorization":"Bearer "+(session?session.access_token:SB_KEY)},
-    body:JSON.stringify({accion,...datos})});
-  const j=await r.json().catch(()=>({error:"Respuesta no válida"}));
-  if(!r.ok)throw new Error(j.error||("Error "+r.status));
+function guardarLocal(k,v){try{v===null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch(e){}}
+function leerLocal(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
+async function llamar(accion,datos,conSesion){
+  const h={"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY};
+  if(conSesion){const {data:{session}}=await sb.auth.getSession();if(session)h.Authorization="Bearer "+session.access_token;}
+  let r;try{r=await fetch(API,{method:"POST",headers:h,body:JSON.stringify({accion,...datos})});}
+  catch(e){const err=new Error("Sin conexión con el servidor. Revisa la red e intenta otra vez.");err.red=true;throw err;}
+  const j=await r.json().catch(()=>({error:"Respuesta no válida del servidor"}));
+  if(!r.ok){const err=new Error(j.error||("Error "+r.status));Object.assign(err,j);err.status=r.status;throw err;}
   return j;
 }
+function descargar(nombre,texto,tipo="text/csv;charset=utf-8"){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+texto],{type:tipo}));a.download=nombre;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);}
+const fmtFecha=d=>d?new Date(d).toLocaleString("es-EC",{dateStyle:"medium",timeStyle:"short"}):"—";
 
-/* ---------------- Arranque y sesión ---------------- */
-init();
-async function init(){
-  const {data:{session}}=await sb.auth.getSession();
-  if(!session)return vistaLogin();
-  await cargarPerfil();
-}
-async function cargarPerfil(){
-  const {data:{user}}=await sb.auth.getUser();if(!user){return vistaLogin();}
-  const {data,error}=await sb.from("perfiles").select("*").eq("id",user.id).maybeSingle();
-  if(error||!data){await sb.auth.signOut();return vistaLogin("Tu cuenta no tiene acceso a PRISMA. Pide a tu administrador que te registre.");}
-  if(!data.activo){await sb.auth.signOut();return vistaLogin("Tu cuenta está desactivada. Contacta a tu administrador.");}
-  estado.perfil=data;
-  if(data.debe_cambiar_clave)return vistaCambiarClave();
-  try{await sb.from("accesos").insert({perfil_id:data.id,correo:data.correo,evento:"ingreso"});
-    await sb.from("perfiles").update({ultimo_ingreso_en:new Date().toISOString()}).eq("id",data.id);}catch(e){}
-  vistaApp();
+/* ===================== Enrutador ===================== */
+let timers=[];
+function limpiarTemporizadores(){timers.forEach(t=>clearInterval(t));timers=[];}
+window.addEventListener("hashchange",arrancar);
+function arrancar(){
+  limpiarTemporizadores();
+  if(location.hash==="#estudiante")return Est.iniciar();
+  Staff.iniciar();
 }
 
-function marco(){return `<header><div class="brand"><b>PRISMA 2027</b><span>ANAI Online · 10.º EGB</span></div></header>`}
-
-function vistaLogin(aviso){
-  root.innerHTML=`<div class="center"><div class="panel card-sm">
-   <div class="eyebrow">PRISMA 2027 · ANAI Online</div><h1>Acceso docente</h1>
-   <p class="muted">Ingresa con el correo y la contraseña que te entregó tu administrador.</p>
-   ${aviso?`<div class="msg err">${esc(aviso)}</div>`:""}
-   <form id="f"><label for="e">Correo</label><input id="e" type="email" autocomplete="username" required>
-   <label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password" required>
-   <div id="m"></div><p></p><button class="btn" id="b">Ingresar</button></form></div></div>`;
-  document.getElementById("f").onsubmit=async e=>{e.preventDefault();
-    const b=document.getElementById("b"),m=document.getElementById("m");b.disabled=true;b.textContent="Ingresando…";m.innerHTML="";
-    const {error}=await sb.auth.signInWithPassword({email:document.getElementById("e").value.trim().toLowerCase(),password:document.getElementById("p").value});
-    if(error){m.innerHTML=`<div class="msg err">Correo o contraseña incorrectos.</div>`;b.disabled=false;b.textContent="Ingresar";return;}
-    await cargarPerfil();};
-}
-
-function vistaCambiarClave(){
-  root.innerHTML=`<div class="center"><div class="panel card-sm">
-   <div class="eyebrow">Primer ingreso</div><h1>Crea tu contraseña</h1>
-   <p class="muted">Por seguridad, reemplaza la contraseña temporal por una propia (mínimo 8 caracteres).</p>
-   <form id="f"><label for="p1">Nueva contraseña</label><input id="p1" type="password" autocomplete="new-password" required minlength="8">
-   <label for="p2">Repite la contraseña</label><input id="p2" type="password" autocomplete="new-password" required minlength="8">
-   <div id="m"></div><p></p><button class="btn" id="b">Guardar y continuar</button></form></div></div>`;
-  document.getElementById("f").onsubmit=async e=>{e.preventDefault();
-    const m=document.getElementById("m"),b=document.getElementById("b");
-    const p1=document.getElementById("p1").value,p2=document.getElementById("p2").value;
-    if(p1!==p2){m.innerHTML=`<div class="msg err">Las contraseñas no coinciden.</div>`;return;}
-    b.disabled=true;b.textContent="Guardando…";
-    const {error}=await sb.auth.updateUser({password:p1});
-    if(error){m.innerHTML=`<div class="msg err">${esc(error.message)}</div>`;b.disabled=false;b.textContent="Guardar y continuar";return;}
-    await sb.from("perfiles").update({debe_cambiar_clave:false}).eq("id",estado.perfil.id);
-    estado.perfil.debe_cambiar_clave=false;await cargarPerfil();};
-}
-
-/* ---------------- App principal ---------------- */
-function vistaApp(){
-  const p=estado.perfil,admin=p.rol==="admin";
-  const tabs=admin?[["docentes","Docentes"],["accesos","Accesos"],["sim","Simulador"],["revision","Revisión"],["marco","Marco"]]
-                  :[["sim","Simulador"],["revision","Revisión"],["marco","Marco"]];
-  if(!S.tab)S.tab=tabs[0][0];
-  root.innerHTML=`<header><div class="brand"><b>PRISMA 2027</b><span>ANAI Online · 10.º EGB</span></div>
-   <div class="row"><div class="tabs" id="tabs">${tabs.map(t=>`<button data-t="${t[0]}" aria-pressed="${S.tab===t[0]}">${t[1]}</button>`).join("")}</div>
-   <button class="btn ghost" id="salir">Salir</button></div></header>
-   <div class="row" style="margin-bottom:14px"><span class="muted">${esc(p.nombre)} · ${esc(p.correo)} · ${admin?"Administrador":"Docente de "+p.area}</span></div>
-   <main id="main"></main>`;
-  document.getElementById("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;vistaApp()});
-  document.getElementById("salir").onclick=async()=>{await sb.auth.signOut();S={};estado.perfil=null;vistaLogin();};
-  ({docentes:panelDocentes,accesos:panelAccesos,sim:simulador,revision:revision,marco:panelMarco})[S.tab]();
-}
-
-/* ---------------- Admin: docentes ---------------- */
-async function panelDocentes(){
-  const main=document.getElementById("main");
-  main.innerHTML=`<div class="stackp"><div class="panel"><div class="eyebrow">Administración</div><h2>Registrar un docente</h2>
-   <p class="muted">Se crea la cuenta con una contraseña temporal que debes entregarle. Él la cambiará al primer ingreso.</p>
-   <form id="f" class="row" style="align-items:flex-end;gap:12px">
-    <div style="flex:1;min-width:180px"><label for="n">Nombre completo</label><input id="n" required></div>
-    <div style="flex:1;min-width:200px"><label for="c">Correo institucional</label><input id="c" type="email" required></div>
-    <div style="min-width:160px"><label for="a">Área</label><select id="a"><option value="Lectura">Lectura</option><option value="Matematica">Matemática</option><option value="Ciencias">Ciencias</option><option value="Ciudadania">Estudios Sociales</option><option value="General">General / coordinación</option></select></div>
-    <button class="btn" id="b">Registrar</button></form><div id="m"></div></div>
-   <div class="panel"><h2>Docentes registrados</h2><div id="lista" class="scroll"><p class="muted">Cargando…</p></div></div></div>`;
-  document.getElementById("f").onsubmit=async e=>{e.preventDefault();
-    const m=document.getElementById("m"),b=document.getElementById("b");b.disabled=true;b.textContent="Registrando…";m.innerHTML="";
-    try{const r=await api("crear_docente",{nombre:document.getElementById("n").value.trim(),correo:document.getElementById("c").value.trim().toLowerCase(),area:document.getElementById("a").value});
-      m.innerHTML=`<div class="msg ok">Cuenta creada para <b>${esc(r.correo)}</b>.<br>Contraseña temporal: <b style="font-family:var(--mono)">${esc(r.clave_temporal)}</b> — cópiala y entrégasela. No se vuelve a mostrar.</div>`;
-      document.getElementById("f").reset();cargarLista();
-    }catch(err){m.innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}
-    b.disabled=false;b.textContent="Registrar";};
-  cargarLista();
-  async function cargarLista(){
-    try{const {data:todos,error:e1}=await sb.from("perfiles").select("*").order("creado_en",{ascending:false});if(e1)throw new Error(e1.message);const d=todos.filter(x=>x.rol==="docente");
-      document.getElementById("lista").innerHTML=d.length?`<table class="q"><tr><th>Nombre</th><th>Correo</th><th>Área</th><th>Último ingreso</th><th>Estado</th><th></th></tr>
-      ${d.map(x=>`<tr><td>${esc(x.nombre)}</td><td>${esc(x.correo)}</td><td>${esc(x.area)}</td>
-      <td>${x.ultimo_ingreso_en?new Date(x.ultimo_ingreso_en).toLocaleString("es-EC"):"—"}</td>
-      <td>${x.activo?'<span class="flag ok">Activo</span>':'<span class="flag off">Inactivo</span>'}</td>
-      <td><button class="btn ghost est" data-id="${x.id}" data-a="${x.activo?0:1}">${x.activo?"Desactivar":"Activar"}</button></td></tr>`).join("")}</table>`
-      :`<p class="muted">Aún no has registrado docentes.</p>`;
-      document.querySelectorAll(".est").forEach(btn=>btn.onclick=async()=>{btn.disabled=true;
-        const {error}=await sb.from("perfiles").update({activo:btn.dataset.a==="1"}).eq("id",btn.dataset.id);if(error){btn.disabled=false;btn.textContent="Error";}else cargarLista();});
-    }catch(err){document.getElementById("lista").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}
+/* ===================== ESTUDIANTE ===================== */
+const Est={tok:null,v:null,i:0,guardando:0,
+  async iniciar(){
+    this.tok=leerLocal("prisma_tok");
+    if(this.tok)return this.cargar();
+    this.ingreso();
+  },
+  ingreso(aviso){
+    root.innerHTML=`<div class="center"><div class="panel card-sm">${marca("Evaluación diagnóstica · 10.º EGB")}
+     <h1 style="margin-top:18px">Ingreso del estudiante</h1>
+     <p class="muted">Escribe tu código de estudiante y el código de sesión que muestra el aplicador.</p>
+     ${aviso?`<div class="msg err">${esc(aviso)}</div>`:""}
+     <form id="f"><label for="cod">Código de estudiante</label><input id="cod" autocomplete="off" autocapitalize="characters" required>
+     <label for="ses">Código de sesión</label><input id="ses" autocomplete="off" autocapitalize="characters" required style="font-family:var(--mono);letter-spacing:.15em">
+     <div id="m"></div><p></p><button class="btn" id="b">Ingresar a la prueba</button></form>
+     <p class="foot muted">¿Eres docente? <a href="#">Acceso docente</a></p></div></div>`;
+    $("f").onsubmit=async e=>{e.preventDefault();const b=$("b");b.disabled=true;b.textContent="Verificando…";$("m").innerHTML="";
+      try{const r=await llamar("est_ingresar",{codigo:$("cod").value,sesion:$("ses").value});
+        this.tok=r.token;guardarLocal("prisma_tok",r.token);this.i=0;await this.cargar(r.reanudado);
+      }catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;b.disabled=false;b.textContent="Ingresar a la prueba";}};
+  },
+  async cargar(reanudado){
+    try{this.v=await llamar("est_estado",{token:this.tok});}
+    catch(err){if(err.reingresar){guardarLocal("prisma_tok",null);return this.ingreso(err.message)}
+      root.innerHTML=`<div class="center"><div class="panel card-sm"><div class="msg err">${esc(err.message)}</div><button class="btn" id="r">Reintentar</button></div></div>`;$("r").onclick=()=>this.cargar();return;}
+    this.reanudado=reanudado;this.mostrar();
+  },
+  mostrar(){
+    limpiarTemporizadores();
+    const v=this.v;
+    if(v.fase==="prueba"){if(!this.instruido&&v.bloque===0&&!this.reanudado)return this.instrucciones();return this.prueba();}
+    if(v.fase==="pausa")return this.pausa();
+    if(v.fase==="contexto")return this.contexto();
+    this.fin();
+  },
+  cabecera(){const v=this.v;return `<header class="top">${marca("Evaluación diagnóstica · 10.º EGB")}
+    <div class="muted small" style="text-align:right">${esc(v.estudiante.nombre||"")}<br><span style="font-family:var(--mono)">${esc(v.estudiante.codigo)} · ${esc(v.estudiante.paralelo||"")}</span></div></header>`},
+  instrucciones(){
+    const v=this.v;
+    root.innerHTML=this.cabecera()+`<div class="panel" style="max-width:700px"><div class="eyebrow">Antes de empezar</div><h1>Bienvenido a PRISMA 2027</h1>
+     <p>Esta evaluación <b>no lleva nota</b>. Nos ayuda a saber qué necesitas aprender y cómo apoyarte.</p>
+     <ul><li>Responderás <b>4 bloques de ${v.minutos} minutos</b>, uno por dominio, con 5 situaciones de 3 preguntas cada una.</li>
+     <li>Cada situación empieza con un texto, una tabla o un caso. Las preguntas se responden con lo que ahí aparece.</li>
+     <li>En las preguntas abiertas explica tu razonamiento: se valora cómo piensas, no cuánto escribes.</li>
+     <li>Tus respuestas <b>se guardan solas</b>. Si termina el tiempo, pasas al siguiente bloque automáticamente.</li>
+     <li>Después del segundo bloque hay una pausa, y al final un cuestionario breve sobre tu experiencia.</li></ul>
+     <p class="muted">Es normal que algunas preguntas resulten difíciles. Haz tu mejor esfuerzo y no dejes preguntas en blanco.</p>
+     <div class="msg info">El tiempo del bloque 1 ya está corriendo: <b id="rt"></b></div>
+     <button class="btn" id="go">Empezar el bloque 1</button></div>`;
+    this.reloj($("rt"));
+    $("go").onclick=()=>{this.instruido=true;this.prueba();};
+  },
+  reloj(el){
+    const fin=Date.now()+this.v.restante*1000;
+    const tick=()=>{const s=Math.max(0,Math.round((fin-Date.now())/1000));if(el&&document.body.contains(el)){el.textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;el.classList&&el.classList.toggle("low",s<180);}
+      if(s<=0){limpiarTemporizadores();this.cargar();}};
+    tick();timers.push(setInterval(tick,1000));
+    timers.push(setInterval(async()=>{try{const v=await llamar("est_estado",{token:this.tok});if(v.fase!==this.v.fase||v.bloque!==this.v.bloque){this.v=v;this.mostrar();}}catch(e){}},60000));
+  },
+  lista(){return this.v.unidades.flatMap(u=>u.items.map(it=>({...it,un:u})))},
+  prueba(){
+    const v=this.v,lista=this.lista();if(this.i>=lista.length)this.i=0;
+    const it=lista[this.i],val=v.respuestas[it.c],un=it.un;
+    let campo="";
+    if(it.t==="sm")campo=it.o.map((o,j)=>`<label class="opt ${val===j?"sel":""}"><input type="radio" name="r" value="${j}" ${val===j?"checked":""}><span><b>${"ABCD"[j]})</b> ${esc(o)}</span></label>`).join("");
+    else if(it.t==="num")campo=`<label for="rn">Tu respuesta (solo el número)</label><input id="rn" inputmode="decimal" autocomplete="off" value="${esc(val)}" style="max-width:240px">`;
+    else campo=`<label for="rt2">Tu respuesta</label><textarea id="rt2" maxlength="4000">${esc(val)}</textarea>`;
+    let pal="",u="";lista.forEach((x,j)=>{if(x.un.id!==u){u=x.un.id;pal+=`<div class="u">${esc(x.un.titulo)}</div>`}
+      const r=v.respuestas[x.c];pal+=`<button data-j="${j}" class="${r!==undefined&&r!==""?"done":""} ${j===this.i?"cur":""}" aria-label="Pregunta ${j+1}">${j+1}</button>`});
+    const resp=lista.filter(x=>v.respuestas[x.c]!==undefined&&v.respuestas[x.c]!=="").length;
+    root.innerHTML=this.cabecera()+`<div class="test est-noselect"><div class="panel">
+     <div class="row between" style="margin-bottom:10px"><div class="eyebrow"><span class="dtag" style="background:var(--d${v.dominio})"></span>Bloque ${v.bloque+1} de 4 · ${DOM[v.dominio]}</div><div class="timer" id="tm"></div></div>
+     <h2>${esc(un.titulo)}</h2><div class="stim">${un.stim}</div>
+     <p class="qtext"><b>Pregunta ${this.i+1} de ${lista.length}.</b> ${esc(it.q)}</p>${campo}
+     <p class="saved" id="sv">&nbsp;</p>
+     <div class="row"><button class="btn ghost" id="prev" ${this.i===0?"disabled":""}>Anterior</button>
+     ${this.i<lista.length-1?`<button class="btn" id="next">Siguiente</button>`:""}</div></div>
+     <aside class="panel"><div class="eyebrow">Respondidas ${resp}/${lista.length}</div><div class="pal">${pal}</div>
+     <p></p><div id="fb"><button class="btn ghost" id="term" style="width:100%">Terminar bloque</button></div>
+     <p class="muted small">Puedes volver a cualquier pregunta de este bloque mientras corra el tiempo.</p></aside></div>`;
+    this.reloj($("tm"));
+    const guardar=async(valor)=>{
+      v.respuestas[it.c]=valor;this.guardando++;$("sv").textContent="Guardando…";
+      try{await llamar("est_responder",{token:this.tok,c:it.c,v:valor});if($("sv"))$("sv").textContent="Guardado ✓";}
+      catch(err){if(err.reingresar){guardarLocal("prisma_tok",null);return this.ingreso(err.message)}
+        if(err.cambio)return this.cargar();if($("sv"))$("sv").textContent="No se guardó: "+err.message;}
+      finally{this.guardando--;}
+    };
+    root.querySelectorAll("input[name=r]").forEach(r=>r.onchange=async()=>{await guardar(+r.value);this.prueba();});
+    const rn=$("rn"),rt=$("rt2");let deb;
+    const conDebounce=el=>{el.oninput=()=>{clearTimeout(deb);$("sv").textContent="Escribiendo…";deb=setTimeout(()=>guardar(el.value),900)};el.onblur=()=>{clearTimeout(deb);if(el.value!==(v.respuestas[it.c]??""))guardar(el.value)}};
+    if(rn)conDebounce(rn);if(rt)conDebounce(rt);
+    const ir=j=>{if(rn||rt){const el=rn||rt;clearTimeout(deb);if(el.value!==(v.respuestas[it.c]??""))guardar(el.value);}this.i=j;this.prueba();window.scrollTo(0,0);};
+    $("prev").onclick=()=>ir(this.i-1);if($("next"))$("next").onclick=()=>ir(this.i+1);
+    root.querySelectorAll(".pal button").forEach(b=>b.onclick=()=>ir(+b.dataset.j));
+    $("term").onclick=()=>{const falt=lista.length-resp;
+      $("fb").innerHTML=`<p class="small"><b>¿Terminar el bloque ${v.bloque+1}?</b> ${falt?`Te faltan ${falt} preguntas. `:""}No podrás volver a este bloque.</p>
+      <div class="row"><button class="btn sm" id="si">Sí, terminar</button><button class="btn ghost sm" id="no">Seguir respondiendo</button></div>`;
+      $("no").onclick=()=>this.prueba();
+      $("si").onclick=async()=>{if(rn||rt){const el=rn||rt;if(el.value!==(v.respuestas[it.c]??""))await guardar(el.value);}
+        while(this.guardando>0)await new Promise(r=>setTimeout(r,150));
+        try{this.v=await llamar("est_siguiente",{token:this.tok,desde:v.bloque});this.i=0;this.mostrar();window.scrollTo(0,0);}
+        catch(err){if(err.reingresar){guardarLocal("prisma_tok",null);return this.ingreso(err.message)}$("fb").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}};};
+  },
+  pausa(){
+    root.innerHTML=this.cabecera()+`<div class="panel" style="max-width:600px"><div class="eyebrow">Pausa activa · 10 minutos</div><h1>Terminaste la primera mitad</h1>
+     <p>Levántate, estírate y toma agua. No converses sobre las preguntas. Continúa cuando el aplicador lo indique.</p>
+     <p class="muted">El tiempo del bloque 3 empieza cuando pulses el botón.</p><div id="m"></div>
+     <button class="btn" id="go">Continuar con el bloque 3</button></div>`;
+    $("go").onclick=async()=>{$("go").disabled=true;try{this.v=await llamar("est_siguiente",{token:this.tok,desde:this.v.bloque});this.i=0;this.instruido=true;this.mostrar();}
+      catch(err){if(err.reingresar){guardarLocal("prisma_tok",null);return this.ingreso(err.message)}$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;$("go").disabled=false;}};
+  },
+  contexto(){
+    root.innerHTML=this.cabecera()+`<div class="panel" style="max-width:780px"><div class="eyebrow">Última parte · no lleva nota</div>
+     <h1>Tu experiencia en ANAI Online</h1><p class="muted">Responde con sinceridad. Tus respuestas se analizan en conjunto, nunca de forma individual ante tu curso.</p><form id="f">
+     ${CTX.map((q,i)=>`<fieldset style="border:0;padding:0;margin:14px 0"><legend style="font-weight:600;margin-bottom:6px">${esc(q)}</legend><div class="likert">${LIK.map((l,j)=>`<label><input type="radio" name="c${i}" value="${j}" required><span>${l}</span></label>`).join("")}</div></fieldset>`).join("")}
+     <div class="fields"><div><label for="con">Tu conexión a internet habitual</label><select id="con"><option>Estable</option><option>Con cortes ocasionales</option><option>Con cortes frecuentes</option></select></div>
+     <div><label for="dis">Dispositivo que usas para estudiar</label><select id="dis"><option>Computador propio</option><option>Computador compartido</option><option>Solo celular o tableta</option></select></div>
+     <div><label for="hor">Horas diarias de estudio fuera de clases en vivo</label><select id="hor"><option>Menos de 1</option><option>1 a 2</option><option>Más de 2</option></select></div></div>
+     <label for="nps">Del 0 al 10, ¿qué tan probable es que recomiendes ANAI Online a un amigo?</label><input id="nps" type="number" min="0" max="10" required style="max-width:120px">
+     <div id="m"></div><p></p><button class="btn" id="b">Enviar y terminar la evaluación</button></form></div>`;
+    $("f").onsubmit=async e=>{e.preventDefault();const ctx={};
+      CTX.forEach((q,i)=>{const r=root.querySelector(`input[name=c${i}]:checked`);ctx["c"+i]=r?+r.value:null});
+      ctx.con=$("con").value;ctx.dis=$("dis").value;ctx.hor=$("hor").value;
+      $("b").disabled=true;$("b").textContent="Enviando…";
+      try{await llamar("est_entregar",{token:this.tok,contexto:ctx,nps:+$("nps").value});guardarLocal("prisma_tok",null);this.v.fase="entregado";this.fin();}
+      catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;$("b").disabled=false;$("b").textContent="Enviar y terminar la evaluación";}};
+  },
+  fin(){
+    guardarLocal("prisma_tok",null);
+    root.innerHTML=`<div class="center"><div class="panel card-sm" style="text-align:center">${logoSVG(64)}
+     <h1 style="margin-top:12px">¡Evaluación entregada!</h1><p>Gracias por tu esfuerzo. Tu tutor te compartirá un informe con tus fortalezas y lo que vamos a reforzar juntos.</p>
+     <p class="muted small">Ya puedes cerrar esta ventana.</p></div></div>`;
   }
-}
-async function panelAccesos(){
-  const main=document.getElementById("main");main.innerHTML=`<div class="panel"><div class="eyebrow">Auditoría</div><h2>Ingresos recientes</h2><div id="l" class="scroll"><p class="muted">Cargando…</p></div></div>`;
-  try{const {data:a,error:e2}=await sb.from("accesos").select("*").order("en",{ascending:false}).limit(200);if(e2)throw new Error(e2.message);
-    document.getElementById("l").innerHTML=a.length?`<table class="q"><tr><th>Fecha y hora</th><th>Correo</th><th>Evento</th></tr>
-    ${a.map(x=>`<tr><td>${new Date(x.en).toLocaleString("es-EC")}</td><td>${esc(x.correo||"—")}</td><td>${esc(x.evento)}</td></tr>`).join("")}</table>`
-    :`<p class="muted">Todavía no hay ingresos registrados.</p>`;
-  }catch(err){document.getElementById("l").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}
+};
+window.addEventListener("beforeunload",e=>{if(location.hash==="#estudiante"&&Est.v&&Est.v.fase==="prueba"){e.preventDefault();e.returnValue="";}});
+
+/* ===================== PERSONAL (docentes y admin) ===================== */
+const Staff={perfil:null,banco:null,tab:null,
+  async iniciar(){
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session)return this.login();
+    await this.cargarPerfil();
+  },
+  async cargarPerfil(){
+    const {data:{user}}=await sb.auth.getUser();if(!user)return this.login();
+    const {data,error}=await sb.from("perfiles").select("*").eq("id",user.id).maybeSingle();
+    if(error||!data){await sb.auth.signOut();return this.login("Tu cuenta no tiene acceso a PRISMA. Pide a tu administrador que te registre.");}
+    if(!data.activo){await sb.auth.signOut();return this.login("Tu cuenta está desactivada. Contacta a tu administrador.");}
+    this.perfil=data;
+    if(data.debe_cambiar_clave)return this.cambiarClave();
+    if(!this.registrado){this.registrado=true;try{await sb.from("accesos").insert({perfil_id:data.id,correo:data.correo,evento:"ingreso"});await sb.from("perfiles").update({ultimo_ingreso_en:new Date().toISOString()}).eq("id",data.id);}catch(e){}}
+    this.app();
+  },
+  login(aviso){
+    root.innerHTML=`<div class="center"><div class="panel card-sm">${marca()}
+     <h1 style="margin-top:18px">Acceso docente</h1><p class="muted">Ingresa con el correo y la contraseña que te entregó tu administrador.</p>
+     ${aviso?`<div class="msg err">${esc(aviso)}</div>`:""}
+     <form id="f"><label for="e">Correo</label><input id="e" type="email" autocomplete="username" required>
+     <label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password" required>
+     <div id="m"></div><p></p><button class="btn" id="b">Ingresar</button></form>
+     <p class="foot muted">¿Eres estudiante y vas a rendir la prueba? <a href="#estudiante">Ingresa aquí</a></p></div></div>`;
+    $("f").onsubmit=async e=>{e.preventDefault();const b=$("b");b.disabled=true;b.textContent="Ingresando…";$("m").innerHTML="";
+      const {error}=await sb.auth.signInWithPassword({email:$("e").value.trim().toLowerCase(),password:$("p").value});
+      if(error){$("m").innerHTML=`<div class="msg err">Correo o contraseña incorrectos.</div>`;b.disabled=false;b.textContent="Ingresar";return;}
+      this.registrado=false;await this.cargarPerfil();};
+  },
+  cambiarClave(){
+    root.innerHTML=`<div class="center"><div class="panel card-sm">${marca()}
+     <h1 style="margin-top:18px">Crea tu contraseña</h1><p class="muted">Reemplaza la contraseña temporal por una propia de al menos 8 caracteres.</p>
+     <form id="f"><label for="p1">Nueva contraseña</label><input id="p1" type="password" autocomplete="new-password" required minlength="8">
+     <label for="p2">Repite la contraseña</label><input id="p2" type="password" autocomplete="new-password" required minlength="8">
+     <div id="m"></div><p></p><button class="btn" id="b">Guardar y continuar</button></form></div></div>`;
+    $("f").onsubmit=async e=>{e.preventDefault();
+      if($("p1").value!==$("p2").value){$("m").innerHTML=`<div class="msg err">Las contraseñas no coinciden.</div>`;return;}
+      $("b").disabled=true;const {error}=await sb.auth.updateUser({password:$("p1").value});
+      if(error){$("m").innerHTML=`<div class="msg err">${esc(error.message)}</div>`;$("b").disabled=false;return;}
+      await sb.from("perfiles").update({debe_cambiar_clave:false}).eq("id",this.perfil.id);await this.cargarPerfil();};
+  },
+  app(){
+    limpiarTemporizadores();
+    const p=this.perfil,admin=p.rol==="admin";
+    const tabs=admin?[["resultados","Resultados"],["monitoreo","Monitoreo"],["sesiones","Sesiones"],["estudiantes","Estudiantes"],["correccion","Corrección"],["docentes","Docentes"],["accesos","Accesos"],["sim","Simulador"],["revision","Revisión"],["marco","Marco"]]
+                    :[["resultados","Resultados"],["correccion","Corrección"],["sim","Simulador"],["revision","Revisión"],["marco","Marco"]];
+    if(!this.tab||!tabs.some(t=>t[0]===this.tab))this.tab=tabs[0][0];
+    root.innerHTML=`<header class="top">${marca()}<div class="row"><span class="muted small">${esc(p.nombre)} · ${admin?"Administrador":"Docente · "+esc(p.area)}</span><button class="btn ghost sm" id="salir">Salir</button></div></header>
+     <nav class="tabs" id="tabs" style="margin-bottom:16px">${tabs.map(t=>`<button data-t="${t[0]}" aria-pressed="${this.tab===t[0]}">${t[1]}</button>`).join("")}</nav><main id="main"></main>`;
+    $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{this.tab=b.dataset.t;this.app()});
+    $("salir").onclick=async()=>{await sb.auth.signOut();this.perfil=null;this.tab=null;this.registrado=false;this.login();};
+    const m=$("main");m.innerHTML=`<div class="panel"><p class="muted">Cargando…</p></div>`;
+    Promise.resolve(V[this.tab](m)).catch(err=>{m.innerHTML=`<div class="panel"><div class="msg err">${esc(err.message||err)}</div></div>`});
+  },
+  async bancoDocente(){
+    if(this.banco)return this.banco;
+    const {data,error}=await sb.from("banco_contenido").select("dominio,data");
+    if(error)throw new Error("No se pudo cargar el banco: "+error.message);
+    const b={};data.forEach(r=>b[r.dominio]=r.data);this.banco=b;
+    this.items={};this.unidades={};
+    ORDEN.forEach(d=>b[d].unidades.forEach(u=>{this.unidades[u.id]=u;u.items.forEach(it=>this.items[it.c]={...it,d,u:u.id})}));
+    return b;
+  }
+};
+
+/* ---------- Resultados (cálculo) ---------- */
+function itemsDelPlan(plan){const out=[];plan.bls.forEach(b=>plan.uns[b].forEach(id=>Staff.unidades[id].items.forEach(it=>out.push(Staff.items[it.c]))));return out}
+function creditoDe(a,it){if(it.t==="rc"){const n=a.notas?.[it.c];return n===undefined||n===null?null:n/2}const c=a.creditos?.[it.c];return c===undefined||c===null?0:c}
+function pDom(a,d){let p=0,m=0;itemsDelPlan(a.plan).forEach(it=>{if(it.d!==d)return;const c=creditoDe(a,it);if(c===null)return;const w=it.t==="rc"?2:1;p+=c*w;m+=w});return m?p/m:null}
+const nivel=x=>x<.2?0:x<.4?1:x<.6?2:x<.8?3:4;
+async function cargarIntentos(soloEntregados){
+  let q=sb.from("intentos").select("id,estudiante_codigo,sesion_id,cuadernillo,plan,respuestas,creditos,notas,contexto,nps,fase,bloque,actualizado_en,entregado_en,iniciado_en");
+  if(soloEntregados)q=q.eq("fase","entregado");
+  const [{data:ints,error},{data:ests,error:e2}]=await Promise.all([q,sb.from("estudiantes").select("codigo,nombre,paralelo,activo")]);
+  if(error||e2)throw new Error((error||e2).message);
+  const E=Object.fromEntries(ests.map(e=>[e.codigo,e]));
+  return {ints:ints.map(a=>({...a,est:E[a.estudiante_codigo]||{nombre:"",paralelo:"—"}})),ests};
 }
 
-/* ---------------- Contenido (banco) ---------------- */
-async function asegurarBanco(){if(estado.banco)return estado.banco;const {data,error}=await sb.from("banco_contenido").select("dominio,data");if(error)throw new Error("No se pudo cargar el banco: "+error.message);if(!data||data.length<4)throw new Error("El banco de ítems aún se está cargando. Intenta en unos minutos.");const b={};data.forEach(r=>b[r.dominio]=r.data);estado.banco=b;return b;}
-function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h}
-function cuadernillo(k){const rot=k%4,alt=k>>2;return ORDEN.map((_,j)=>ORDEN[(j+rot)%4]).map((d,j)=>d+(((j+alt)%2)?"B":"A"))}
+const V={
+/* ---------- Resultados ---------- */
+async resultados(m){
+  await Staff.bancoDocente();
+  const {ints}=await cargarIntentos(true);
+  if(!ints.length){m.innerHTML=`<div class="panel"><div class="eyebrow">Resultados</div><h1>Aún no hay evaluaciones entregadas</h1>
+    <p class="muted">Cuando los estudiantes entreguen su prueba, aquí verás los niveles por dominio y paralelo, el logro por proceso y destreza, y el informe por estudiante. Los resultados se actualizan al corregir las respuestas abiertas.</p></div>`;return;}
+  const F=V._f||(V._f={par:"Todos",dom:"L"});
+  const pars=["Todos",...new Set(ints.map(a=>a.est.paralelo))].sort();
+  const pob=ints.filter(a=>F.par==="Todos"||a.est.paralelo===F.par);
+  const dist=d=>{const c=[0,0,0,0,0];let n=0;pob.forEach(a=>{const x=pDom(a,d);if(x!==null){c[nivel(x)]++;n++}});return c.map(x=>n?Math.round(x/n*100):0)};
+  const pendientes=pob.reduce((s,a)=>s+itemsDelPlan(a.plan).filter(it=>it.t==="rc"&&(a.notas?.[it.c]===undefined)).length,0);
+  const npsV=pob.map(a=>a.nps).filter(n=>n!=null),nps=npsV.length?Math.round((npsV.filter(n=>n>=9).length-npsV.filter(n=>n<=6).length)/npsV.length*100):null;
+  const est=Object.values(Staff.items).map(it=>{const xs=[],tot=[];pob.forEach(a=>{if(!a.plan.bls.includes(it.d+Staff.unidades[it.u].bloque))return;const c=creditoDe(a,it);if(c===null)return;xs.push(c);tot.push(pDom(a,it.d)??0)});
+    const n=xs.length,p=n?xs.reduce((s,x)=>s+x,0)/n:null;let r=null;
+    if(n>5){const mt=tot.reduce((s,x)=>s+x,0)/n;let sxy=0,sxx=0,syy=0;xs.forEach((x,j)=>{sxy+=(x-p)*(tot[j]-mt);sxx+=(x-p)**2;syy+=(tot[j]-mt)**2});r=sxx&&syy?sxy/Math.sqrt(sxx*syy):null}
+    return{...it,cnt:n,p,r}});
+  const proc=d=>PROC[d].map(pr=>{const e=est.filter(x=>x.d===d&&x.proc===pr&&x.p!==null);return{pr,v:e.length?e.reduce((s,x)=>s+x.p,0)/e.length:null}});
+  const ao={};est.forEach(e=>{if(e.p===null)return;(ao[e.ao]??={ao:e.ao,d:e.d,s:0,n:0});ao[e.ao].s+=e.p;ao[e.ao].n++});
+  const aoL=Object.values(ao).map(x=>({...x,v:x.s/x.n})).sort((a,b)=>a.v-b.v);
+  const bajo=Math.round(ORDEN.reduce((s,d)=>{const c=dist(d);return s+c[0]+c[1]},0)/4);
+  m.innerHTML=`<div class="stackp">
+   <div class="panel"><div class="row between"><div><div class="eyebrow">Tablero institucional</div><h1>Resultados de PRISMA 2027</h1></div>
+    <div class="seg" id="spar">${pars.map(p=>`<button data-v="${esc(p)}" aria-pressed="${F.par===p}">${esc(p)}</button>`).join("")}</div></div>
+    <div class="kpis"><div class="kpi"><span class="muted small">Estudiantes evaluados</span><b>${pob.length}</b></div>
+    <div class="kpi"><span class="muted small">Bajo el umbral (nivel 0–1), promedio de dominios</span><b>${bajo} %</b></div>
+    <div class="kpi"><span class="muted small">Respuestas abiertas por corregir</span><b>${pendientes}</b></div>
+    <div class="kpi"><span class="muted small">NPS estudiantil</span><b>${nps??"—"}</b></div></div>
+    ${pendientes?`<p class="small" style="color:var(--warn)">Los niveles son provisionales hasta corregir las respuestas abiertas pendientes.</p>`:""}</div>
+   <div class="panel"><h2>Niveles de desempeño por dominio</h2>
+    <div class="legend">${NIV.map((n,i)=>`<span><i style="background:var(--lv${i})"></i>${i} ${n}</span>`).join("")}</div>
+    ${ORDEN.map(d=>{const c=dist(d);return `<div class="dom"><b><span class="dtag" style="background:var(--d${d})"></span>${DOM[d]}</b> <span class="muted">· ${c[0]+c[1]} % bajo el umbral</span>
+     <div class="stack" role="img" aria-label="${DOM[d]}: ${c.map((x,i)=>NIV[i]+" "+x+"%").join(", ")}">${c.map((x,i)=>`<div style="width:${x}%;background:var(--lv${i})">${x>=7?x+"%":""}</div>`).join("")}</div></div>`}).join("")}</div>
+   <div class="grid2"><div class="panel"><div class="row between"><h2>Logro por proceso</h2>
+     <div class="seg" id="sdom">${ORDEN.map(d=>`<button data-v="${d}" aria-pressed="${F.dom===d}">${DOMC[d]}</button>`).join("")}</div></div>
+     ${proc(F.dom).map(x=>`<div class="hbar"><span>${x.pr}</span><div class="t"><div style="width:${Math.round((x.v||0)*100)}%"></div></div><span class="v">${x.v===null?"—":Math.round(x.v*100)+" %"}</span></div>`).join("")}</div>
+    <div class="panel"><h2>Destrezas AO con menor logro</h2><p class="muted small">Prioridades para el plan de mejora y la nivelación.</p>
+     <div class="scroll"><table class="q"><tr><th>Destreza</th><th>Dominio</th><th>Logro</th></tr>${aoL.slice(0,8).map(x=>`<tr><td><span class="tag">${x.ao}</span></td><td>${DOMC[x.d]}</td><td>${Math.round(x.v*100)} %</td></tr>`).join("")}</table></div></div></div>
+   <div class="panel"><div class="row between"><h2>Informe por estudiante</h2><button class="btn ghost sm" id="csvE">Descargar CSV</button></div>
+    <div class="scroll"><table class="q"><tr><th>Código</th><th>Estudiante</th><th>Paralelo</th>${ORDEN.map(d=>`<th>${DOMC[d]}</th>`).join("")}</tr>
+    ${pob.sort((a,b)=>(a.est.paralelo+a.est.nombre).localeCompare(b.est.paralelo+b.est.nombre)).map(a=>`<tr><td>${esc(a.estudiante_codigo)}</td><td>${esc(a.est.nombre)}</td><td>${esc(a.est.paralelo)}</td>${ORDEN.map(d=>{const x=pDom(a,d);return `<td>${x===null?"—":`<span class="flag" style="color:var(--lv${nivel(x)});border:1px solid var(--lv${nivel(x)})">${nivel(x)} · ${Math.round(x*100)} %</span>`}</td>`}).join("")}</tr>`).join("")}</table></div></div>
+   <div class="panel"><div class="row between"><div><div class="eyebrow">Calidad de los ítems</div><h2>Dificultad y discriminación</h2></div><button class="btn ghost sm" id="csvR">Descargar respuestas CSV</button></div>
+    <p class="muted small">p = proporción de crédito (lo esperable: 0,20–0,90). r = correlación con el puntaje del dominio (revisar si es menor que 0,20). Con menos de 6 respuestas no se calcula r.</p>
+    <div class="scroll"><table class="q"><tr><th>Ítem</th><th>Destreza</th><th>Proceso</th><th>Nivel</th><th>n</th><th>p</th><th>r</th><th>Estado</th></tr>
+    ${est.map(e=>{const f=e.p===null?"":e.p<.2||e.p>.9?`<span class="flag warn">Dificultad</span>`:e.r!==null&&e.r<.2?`<span class="flag off">Discrimina poco</span>`:`<span class="flag ok">Adecuado</span>`;
+     return `<tr><td>${e.c}</td><td>${e.ao}</td><td>${e.proc}</td><td>${e.n}</td><td>${e.cnt}</td><td>${e.p===null?"—":e.p.toFixed(2)}</td><td>${e.r===null?"—":e.r.toFixed(2)}</td><td>${f}</td></tr>`}).join("")}</table></div></div></div>`;
+  m.querySelectorAll("#spar button").forEach(b=>b.onclick=()=>{F.par=b.dataset.v;V.resultados(m)});
+  m.querySelectorAll("#sdom button").forEach(b=>b.onclick=()=>{F.dom=b.dataset.v;V.resultados(m)});
+  $("csvE").onclick=()=>descargar("prisma2027_estudiantes.csv",["codigo;nombre;paralelo;cuadernillo;"+ORDEN.map(d=>`${DOMC[d]}_logro;${DOMC[d]}_nivel`).join(";")+";nps",
+    ...pob.map(a=>[a.estudiante_codigo,a.est.nombre,a.est.paralelo,a.cuadernillo+1,...ORDEN.flatMap(d=>{const x=pDom(a,d);return x===null?["",""]:[Math.round(x*100),nivel(x)]}),a.nps??""].join(";"))].join("\n"));
+  $("csvR").onclick=()=>descargar("prisma2027_respuestas.csv",["codigo;paralelo;cuadernillo;item;dominio;proceso;destreza;nivel;respuesta;credito",
+    ...pob.flatMap(a=>itemsDelPlan(a.plan).map(it=>{const r=a.respuestas?.[it.c];const txt=it.t==="sm"&&r!==undefined?"ABCD"[r]+"(orig)":String(r??"");const c=creditoDe(a,it);
+      return [a.estudiante_codigo,a.est.paralelo,a.cuadernillo+1,it.c,it.d,it.proc,it.ao,it.n,JSON.stringify(txt),c===null?"":c].join(";")}))].join("\n"));
+},
 
-/* ---------------- Simulador ---------------- */
-async function simulador(){
-  const main=document.getElementById("main");main.innerHTML=`<div class="panel"><p class="muted">Preparando el simulador…</p></div>`;
-  const banco=await asegurarBanco().catch(err=>{main.innerHTML=`<div class="panel"><div class="msg err">${esc(err.message)}</div></div>`;return null});
-  if(!banco)return;
-  if(!S.sim)S.sim={paso:"intro"};
-  const BL={};ORDEN.forEach(d=>["A","B"].forEach(f=>BL[d+f]={d,f,uns:banco[d].unidades.filter(u=>u.bloque===f)}));
-  S.simBL=BL;
-  ({intro:simIntro,prueba:simPrueba,fin:simFin})[S.sim.paso](main);
-}
-function simIntro(main){
-  main.innerHTML=`<div class="panel" style="max-width:680px"><div class="eyebrow">Simulador · modo práctica</div>
-   <h1>Vive la prueba como un estudiante</h1>
-   <p>Responderás <b>4 bloques</b>, uno por dominio, con 5 situaciones de 3 preguntas cada una. Es el mismo formato que rendirán los estudiantes de 10.º. Aquí el tiempo es libre y tus respuestas no se guardan como resultado real.</p>
-   <p class="muted">Al terminar verás la corrección con las claves, las rúbricas y la destreza AO de cada ítem.</p>
-   <button class="btn" id="go">Comenzar simulación</button></div>`;
-  document.getElementById("go").onclick=()=>{const cu=hash(estado.perfil.correo)%8;S.sim={paso:"prueba",cu,bls:cuadernillo(cu),b:0,i:0,resp:{}};simulador();};
-}
-const itemsBloque=(BL,k)=>BL[k].uns.flatMap(u=>u.items.map(i=>({...i,un:u})));
-function simPrueba(main){
-  const BL=S.simBL,k=S.sim.bls[S.sim.b],lista=itemsBloque(BL,k),it=lista[S.sim.i],v=S.sim.resp[it.c],un=it.un;
-  let campo="";
-  if(it.t==="sm")campo=it.o.map((o,j)=>`<label class="opt ${v===j?"sel":""}"><input type="radio" name="r" value="${j}" ${v===j?"checked":""}><span><b>${"ABCD"[j]})</b> ${esc(o)}</span></label>`).join("");
-  else if(it.t==="num")campo=`<label for="rn">Tu respuesta</label><input id="rn" inputmode="decimal" value="${esc(v)}" style="max-width:220px">`;
-  else campo=`<label for="rt">Tu respuesta</label><textarea id="rt">${esc(v)}</textarea>`;
-  let pal="",u="";lista.forEach((x,j)=>{if(x.un.id!==u){u=x.un.id;pal+=`<div class="u">${esc(x.un.titulo)}</div>`}pal+=`<button data-j="${j}" class="${S.sim.resp[x.c]!==undefined&&S.sim.resp[x.c]!==""?"done":""} ${j===S.sim.i?"cur":""}">${j+1}</button>`});
-  main.innerHTML=`<div class="test"><div class="panel">
-   <div class="bar"><div class="eyebrow">Bloque ${S.sim.b+1} de 4 · ${DOM[k[0]]}</div><div class="muted">Cuadernillo ${S.sim.cu+1}</div></div>
-   <h2>${esc(un.titulo)}</h2><div class="stim">${un.stim}</div>
-   <p class="qtext"><b>Pregunta ${S.sim.i+1}.</b> ${esc(it.q)}</p>${campo}
-   <p></p><div class="row"><button class="btn ghost" id="prev" ${S.sim.i===0?"disabled":""}>Anterior</button>
-   <button class="btn" id="next">${S.sim.i<lista.length-1?"Siguiente":(S.sim.b<3?"Terminar bloque":"Ver corrección")}</button></div></div>
-   <aside class="panel"><div class="eyebrow">Preguntas · ${lista.filter(x=>S.sim.resp[x.c]!==undefined&&S.sim.resp[x.c]!=="").length}/${lista.length}</div><div class="pal">${pal}</div></aside></div>`;
-  main.querySelectorAll("input[name=r]").forEach(r=>r.onchange=()=>{S.sim.resp[it.c]=+r.value;simPrueba(main)});
-  const rn=document.getElementById("rn"),rt=document.getElementById("rt");
-  if(rn)rn.oninput=()=>S.sim.resp[it.c]=rn.value;if(rt)rt.oninput=()=>S.sim.resp[it.c]=rt.value;
-  document.getElementById("prev").onclick=()=>{S.sim.i--;simPrueba(main)};
-  document.getElementById("next").onclick=()=>{if(S.sim.i<lista.length-1){S.sim.i++;simPrueba(main)}else if(S.sim.b<3){S.sim.b++;S.sim.i=0;simPrueba(main)}else{S.sim.paso="fin";simulador()}};
-  main.querySelectorAll(".pal button").forEach(b=>b.onclick=()=>{S.sim.i=+b.dataset.j;simPrueba(main)});
-}
-function credito(it,v){if(v===undefined||v==="")return 0;if(it.t==="sm")return v===it.k?1:0;if(it.t==="num"){const x=parseFloat(String(v).replace(",","."));return Math.abs(x-it.k)<=(it.tol||0)+1e-9?1:0}return null}
-function simFin(main){
-  const BL=S.simBL;let html=`<div class="stackp"><div class="panel"><div class="eyebrow">Corrección</div><h1>Tu simulación</h1>
-   <p class="muted">Así se ve la prueba por dentro: cada ítem con su clave, su rúbrica y su destreza. Las preguntas abiertas se califican con rúbrica, no automáticamente.</p></div>`;
-  S.sim.bls.forEach(k=>{const lista=itemsBloque(BL,k);
-    html+=`<div class="panel"><h2>${DOM[k[0]]}</h2>`;
-    lista.forEach(it=>{const v=S.sim.resp[it.c],c=credito(it,v);
-      html+=`<div style="padding:10px 0;border-top:1px solid var(--line)"><div class="row" style="justify-content:space-between">
-       <div><span class="tag">${it.c}</span><span class="tag">${it.ao}</span><span class="tag">${it.n}</span><span class="tag">${it.proc}</span></div>
-       ${it.t==="rc"?'<span class="muted" style="font-size:13px">Rúbrica</span>':c?'<span class="flag ok">Correcta</span>':'<span class="flag off">Revisar</span>'}</div>
-       <p class="qtext" style="margin:6px 0">${esc(it.q)}</p>`;
-      if(it.t==="sm")html+=it.o.map((o,j)=>`<div class="opt ${j===it.k?"key":""} ${v===j&&j!==it.k?"sel":""}" style="cursor:default"><span><b>${"ABCD"[j]})</b> ${esc(o)} ${j===it.k?"✓":""}</span></div>`).join("");
-      else if(it.t==="num")html+=`<p>Tu respuesta: <b>${esc(v||"—")}</b> · Clave: <b>${esc(it.k)}</b>${it.tol?` (±${it.tol})`:""}</p>`;
-      else{html+=`<p>Tu respuesta: ${esc(v||"—")}</p>`+it.r.map((r,n)=>`<div class="rub"><span class="cred">${n}</span>${esc(r)}</div>`).join("")}
-      html+=`</div>`;});
-    html+=`</div>`;});
-  html+=`<div class="panel"><button class="btn" id="otra">Repetir simulación</button></div></div>`;
-  main.innerHTML=html;document.getElementById("otra").onclick=()=>{S.sim={paso:"intro"};simulador()};
-}
+/* ---------- Monitoreo ---------- */
+async monitoreo(m){
+  const {data:ses,error}=await sb.from("sesiones").select("*").order("inicio",{ascending:false});
+  if(error)throw error;
+  if(!ses.length){m.innerHTML=`<div class="panel"><h1>No hay sesiones</h1><p class="muted">Crea una sesión en la pestaña <b>Sesiones</b> para monitorear la aplicación.</p></div>`;return;}
+  if(!V._ses||!ses.some(s=>s.id===V._ses)){const ahora=Date.now();V._ses=(ses.find(s=>new Date(s.inicio)<=ahora&&new Date(s.fin)>=ahora)||ses[0]).id;}
+  const pintar=async()=>{
+    const s=ses.find(x=>x.id===V._ses);
+    const {data:ints}=await sb.from("intentos").select("id,estudiante_codigo,cuadernillo,fase,bloque,actualizado_en,iniciado_en,entregado_en").eq("sesion_id",s.id);
+    const {data:ests}=await sb.from("estudiantes").select("codigo,nombre,paralelo");
+    const E=Object.fromEntries((ests||[]).map(e=>[e.codigo,e]));
+    const c={prueba:0,pausa:0,contexto:0,entregado:0};(ints||[]).forEach(a=>c[a.fase]++);
+    const box=$("mon");if(!box)return;
+    box.innerHTML=`<div class="kpis"><div class="kpi"><span class="muted small">Ingresaron</span><b>${ints.length}</b></div><div class="kpi"><span class="muted small">Respondiendo</span><b>${c.prueba}</b></div>
+     <div class="kpi"><span class="muted small">En pausa</span><b>${c.pausa}</b></div><div class="kpi"><span class="muted small">En cuestionario</span><b>${c.contexto}</b></div><div class="kpi"><span class="muted small">Entregaron</span><b>${c.entregado}</b></div></div>
+     <p class="muted small">Se actualiza cada 15 segundos · última actualización ${new Date().toLocaleTimeString("es-EC")}</p>
+     <div class="scroll"><table class="q"><tr><th>Estudiante</th><th>Paralelo</th><th>Cuadernillo</th><th>Estado</th><th>Última actividad</th><th></th></tr>
+     ${(ints||[]).sort((a,b)=>(E[a.estudiante_codigo]?.nombre||"").localeCompare(E[b.estudiante_codigo]?.nombre||"")).map(a=>{const est=E[a.estudiante_codigo]||{};
+      const inactivo=a.fase!=="entregado"&&Date.now()-new Date(a.actualizado_en)>5*60000;
+      const estado=a.fase==="entregado"?`<span class="flag ok">Entregó</span>`:a.fase==="pausa"?`<span class="flag info">Pausa</span>`:a.fase==="contexto"?`<span class="flag info">Cuestionario</span>`:`<span class="flag info">Bloque ${a.bloque+1}/4</span>`;
+      return `<tr><td>${esc(est.nombre||"")}<br><span class="muted small">${esc(a.estudiante_codigo)}</span></td><td>${esc(est.paralelo||"")}</td><td>${a.cuadernillo+1}</td><td>${estado} ${inactivo?`<span class="flag warn">Sin actividad</span>`:""}</td><td>${fmtFecha(a.actualizado_en)}</td>
+      <td>${Staff.perfil.rol==="admin"?`<span class="inline-confirm" data-id="${a.id}"><button class="btn ghost sm reab">Reiniciar intento</button></span>`:""}</td></tr>`}).join("")||`<tr><td colspan="6" class="muted">Todavía nadie ingresó con este código.</td></tr>`}</table></div>`;
+    box.querySelectorAll(".reab").forEach(btn=>btn.onclick=()=>{const w=btn.parentElement;
+      w.innerHTML=`<span class="small">¿Borrar sus respuestas y dejarlo empezar de cero?</span><button class="btn danger sm si">Sí, reiniciar</button><button class="btn ghost sm no">Cancelar</button>`;
+      w.querySelector(".no").onclick=pintar;
+      w.querySelector(".si").onclick=async()=>{const {error}=await sb.from("intentos").delete().eq("id",w.dataset.id);if(error)w.innerHTML=`<span class="flag off">${esc(error.message)}</span>`;else pintar();};});
+  };
+  m.innerHTML=`<div class="panel"><div class="row between"><div><div class="eyebrow">Monitoreo en vivo</div><h1>Aplicación en curso</h1></div>
+   <select id="sel" style="max-width:340px">${ses.map(s=>`<option value="${s.id}" ${s.id===V._ses?"selected":""}>${esc(s.nombre)} · ${esc(s.codigo)}</option>`).join("")}</select></div><div id="mon"><p class="muted">Cargando…</p></div></div>`;
+  $("sel").onchange=()=>{V._ses=+$("sel").value;pintar();};
+  await pintar();timers.push(setInterval(pintar,15000));
+},
 
-/* ---------------- Revisión docente ---------------- */
-async function revision(){
-  const main=document.getElementById("main");main.innerHTML=`<div class="panel"><p class="muted">Cargando banco…</p></div>`;
-  const banco=await asegurarBanco().catch(err=>{main.innerHTML=`<div class="panel"><div class="msg err">${esc(err.message)}</div></div>`;return null});
-  if(!banco)return;
-  if(!S.rev)S.rev=estado.perfil.area&&AREAS[estado.perfil.area]||"L";
-  main.innerHTML=`<div class="stackp"><div class="panel"><div class="row" style="justify-content:space-between"><div><div class="eyebrow">Revisión docente</div><h2>Banco de ítems con claves</h2></div>
-   <div class="seg">${ORDEN.map(d=>`<button data-d="${d}" aria-pressed="${S.rev===d}">${DOMC[d]}</button>`).join("")}</div></div>
-   <p class="muted">Material reservado para docentes. No debe compartirse con estudiantes antes de la aplicación.</p></div>
-   <div id="cont"></div></div>`;
-  main.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{S.rev=b.dataset.d;revision()});
-  const d=S.rev,cont=document.getElementById("cont");let html="";
-  banco[d].unidades.forEach(u=>{html+=`<div class="panel"><div class="eyebrow">${u.id} · Bloque ${u.bloque}${u.subdominio?" · "+u.subdominio:""}</div><h2>${esc(u.titulo)}</h2><div class="stim">${u.stim}</div>`;
-    u.items.forEach(it=>{html+=`<div style="padding:10px 0;border-top:1px solid var(--line)"><div><span class="tag">${it.c}</span><span class="tag">${it.ao}</span><span class="tag">${it.n}</span><span class="tag">${it.proc}</span><span class="tag">${it.dif}</span></div>
-     <p class="qtext" style="margin:6px 0"><b>${esc(it.q)}</b></p>`;
-     if(it.t==="sm")html+=it.o.map((o,j)=>`<div class="opt ${j===it.k?"key":""}" style="cursor:default"><span><b>${"ABCD"[j]})</b> ${esc(o)} ${j===it.k?"✓ clave":""}</span></div>`).join("");
-     else if(it.t==="num")html+=`<p>Respuesta: <b>${esc(it.k)}</b>${it.tol?` (±${it.tol})`:""}</p>`;
-     else html+=`<p class="muted" style="font-size:13px">Rúbrica:</p>`+it.r.map((r,n)=>`<div class="rub"><span class="cred">${n}</span>${esc(r)}</div>`).join("");
-     html+=`</div>`;});
-    html+=`</div>`;});
-  cont.innerHTML=html;
-}
+/* ---------- Sesiones ---------- */
+async sesiones(m){
+  const hoy=new Date();const f=hoy.toISOString().slice(0,10);
+  m.innerHTML=`<div class="stackp"><div class="panel"><div class="eyebrow">Jornadas de aplicación</div><h2>Crear una sesión</h2>
+   <p class="muted small">El código de sesión solo abre la prueba dentro del horario indicado. Los estudiantes que se desconectan pueden retomar con el mismo código mientras la sesión esté abierta.</p>
+   <form id="f"><div class="fields"><div><label for="sn">Nombre</label><input id="sn" required placeholder="10.º A y B · Laboratorio 2"></div>
+    <div><label for="sl">Laboratorio</label><input id="sl" placeholder="Laboratorio 2"></div>
+    <div><label for="sf">Fecha</label><input id="sf" type="date" required value="${f}"></div>
+    <div><label for="si">Hora de apertura</label><input id="si" type="time" required value="08:00"></div>
+    <div><label for="sc">Hora de cierre</label><input id="sc" type="time" required value="10:45"></div>
+    <div><label for="sm">Minutos por bloque</label><input id="sm" type="number" min="5" max="90" value="25" required></div></div>
+    <p class="muted small">Con 4 bloques de 25 minutos, la pausa y el cuestionario, calcula unas 2 horas y 15 minutos. El cierre solo impide nuevos ingresos.</p>
+    <div id="m"></div><button class="btn">Crear sesión</button></form></div>
+   <div class="panel"><h2>Sesiones</h2><div id="lst" class="scroll"><p class="muted">Cargando…</p></div></div></div>`;
+  const listar=async()=>{
+    const {data:ses,error}=await sb.from("sesiones").select("*").order("inicio",{ascending:false});
+    if(error){$("lst").innerHTML=`<div class="msg err">${esc(error.message)}</div>`;return;}
+    const {data:ints}=await sb.from("intentos").select("sesion_id,fase");
+    const ahora=Date.now();
+    $("lst").innerHTML=ses.length?`<table class="q"><tr><th>Sesión</th><th>Código</th><th>Horario</th><th>Estado</th><th>Ingresos</th><th></th></tr>
+    ${ses.map(s=>{const abierta=s.activa&&new Date(s.inicio)<=ahora&&new Date(s.fin)>=ahora,prog=s.activa&&new Date(s.inicio)>ahora;
+     const n=(ints||[]).filter(i=>i.sesion_id===s.id),e=n.filter(i=>i.fase==="entregado").length;
+     return `<tr><td><b>${esc(s.nombre)}</b><br><span class="muted small">${esc(s.laboratorio||"")} · ${s.minutos_bloque} min/bloque</span></td>
+     <td><span style="font:600 18px var(--mono);letter-spacing:.12em">${esc(s.codigo)}</span></td>
+     <td class="small">${fmtFecha(s.inicio)}<br>hasta ${new Date(s.fin).toLocaleTimeString("es-EC",{timeStyle:"short"})}</td>
+     <td>${!s.activa?`<span class="flag off">Desactivada</span>`:abierta?`<span class="flag ok">Abierta</span>`:prog?`<span class="flag info">Programada</span>`:`<span class="flag warn">Cerrada</span>`}</td>
+     <td>${n.length} · ${e} entregadas</td>
+     <td><div class="row"><button class="btn sm proy" data-c="${esc(s.codigo)}" data-n="${esc(s.nombre)}">Proyectar</button><button class="btn ghost sm tog" data-id="${s.id}" data-a="${s.activa?0:1}">${s.activa?"Desactivar":"Activar"}</button></div></td></tr>`}).join("")}</table>`
+    :`<p class="muted">Aún no hay sesiones. Crea la primera arriba.</p>`;
+    $("lst").querySelectorAll(".tog").forEach(b=>b.onclick=async()=>{b.disabled=true;await sb.from("sesiones").update({activa:b.dataset.a==="1"}).eq("id",b.dataset.id);listar();});
+    $("lst").querySelectorAll(".proy").forEach(b=>b.onclick=()=>proyectar(b.dataset.c,b.dataset.n));
+  };
+  $("f").onsubmit=async e=>{e.preventDefault();
+    const ini=new Date(`${$("sf").value}T${$("si").value}`),fin=new Date(`${$("sf").value}T${$("sc").value}`);
+    if(fin<=ini){$("m").innerHTML=`<div class="msg err">La hora de cierre debe ser posterior a la de apertura.</div>`;return;}
+    const abc="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",codigo=Array.from(crypto.getRandomValues(new Uint8Array(6)),x=>abc[x%abc.length]).join("");
+    const {error}=await sb.from("sesiones").insert({nombre:$("sn").value.trim(),laboratorio:$("sl").value.trim()||null,codigo,inicio:ini.toISOString(),fin:fin.toISOString(),minutos_bloque:+$("sm").value});
+    $("m").innerHTML=error?`<div class="msg err">${esc(error.message)}</div>`:`<div class="msg ok">Sesión creada con el código <b style="font-family:var(--mono)">${codigo}</b>.</div>`;
+    if(!error){$("sn").value="";listar();}};
+  listar();
+},
 
-/* ---------------- Marco ---------------- */
-function panelMarco(){
-  const MAT=[["L","Localizar",8,"25%"],["L","Comprender",13,"45%"],["L","Evaluar y reflexionar",9,"30%"],
-   ["M","Formular",8,"25%"],["M","Emplear",15,"50%"],["M","Interpretar",7,"25%"],
-   ["C","Explicar fenómenos",12,"40%"],["C","Evaluar y diseñar indagación",8,"25%"],["C","Interpretar datos",10,"35%"],
-   ["S","Conocer y comprender",10,"35%"],["S","Analizar fuentes",12,"40%"],["S","Razonar y proponer",8,"25%"]];
-  document.getElementById("main").innerHTML=`<div class="stackp">
-   <div class="panel"><div class="eyebrow">Marco de evaluación</div><h1>Cómo funciona PRISMA 2027</h1>
-   <p>PRISMA es una evaluación diagnóstica tipo PISA para 10.º EGB de ANAI Online. Mide cuatro dominios con situaciones de la vida real, no memoria. Es presencial, en los laboratorios, y no lleva nota: produce una radiografía honesta de lo que hay que reforzar, tomando como meta el Ecosistema Curricular 2027–2028.</p>
-   <div class="row">${ORDEN.map(d=>`<span class="tag">${DOM[d]}</span>`).join("")}</div></div>
-   <div class="panel"><h2>Niveles de desempeño</h2><div class="row">${NIV.map((n,i)=>`<span class="tag" style="background:var(--lv${i});color:#fff">${i} · ${n}</span>`).join("")}</div>
-   <p class="muted" style="margin-top:10px">El nivel 2 (Básico) es el umbral mínimo esperado al terminar 10.º.</p></div>
-   <div class="panel"><h2>Matriz de especificaciones</h2><p class="muted">120 ítems en total, 30 por dominio, repartidos en 8 cuadernillos. Cada estudiante responde 60 (4 bloques).</p>
-   <div class="scroll"><table class="q"><tr><th>Dominio</th><th>Proceso</th><th>Ítems</th><th>Peso</th></tr>
-   ${MAT.map(r=>`<tr><td>${DOM[r[0]]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("")}</table></div></div></div>`;
+/* ---------- Estudiantes ---------- */
+async estudiantes(m){
+  m.innerHTML=`<div class="stackp"><div class="panel"><div class="eyebrow">Carga de estudiantes</div><h2>Subir la lista de 10.º</h2>
+   <p class="muted small">Usa un archivo CSV con tres columnas: <b>codigo, nombre, paralelo</b>. Acepta coma o punto y coma (formato de Excel en español). Si un código ya existe, se actualizan su nombre y paralelo.</p>
+   <div class="row"><input type="file" id="arch" accept=".csv,text/csv" style="max-width:360px"><button class="btn ghost sm" id="plant">Descargar plantilla</button></div>
+   <label for="pega">O pega la lista aquí</label><textarea id="pega" placeholder="codigo;nombre;paralelo&#10;AO-10A-001;Ana Pérez;10.º A"></textarea>
+   <div id="prev"></div></div>
+   <div class="panel"><div class="row between"><h2>Estudiantes registrados</h2><input id="busca" placeholder="Buscar por nombre o código" style="max-width:280px"></div><div id="lst" class="scroll"><p class="muted">Cargando…</p></div></div></div>`;
+  $("plant").onclick=()=>descargar("plantilla_estudiantes_prisma.csv","codigo;nombre;paralelo\nAO-10A-001;Apellido Nombre;10.º A\nAO-10B-001;Apellido Nombre;10.º B\n");
+  let filas=[];
+  const analizar=txt=>{
+    const lineas=txt.replace(/\r/g,"").split("\n").map(l=>l.trim()).filter(Boolean);
+    if(!lineas.length){$("prev").innerHTML="";return;}
+    const sep=(lineas[0].match(/;/g)||[]).length>=(lineas[0].match(/,/g)||[]).length?";":",";
+    const partir=l=>{const out=[];let cur="",q=false;for(const ch of l){if(ch==='"'){q=!q;continue}if(ch===sep&&!q){out.push(cur.trim());cur="";continue}cur+=ch}out.push(cur.trim());return out};
+    let datos=lineas.map(partir);if(/c[oó]digo/i.test(datos[0][0]))datos=datos.slice(1);
+    const errores=[],vistos=new Set();filas=[];
+    datos.forEach((d,i)=>{const codigo=(d[0]||"").toUpperCase().trim(),nombre=(d[1]||"").trim(),paralelo=(d[2]||"").trim();
+      if(!codigo||!nombre||!paralelo){errores.push(`Fila ${i+1}: faltan datos`);return}
+      if(codigo.length<2||codigo.length>40){errores.push(`Fila ${i+1}: código no válido`);return}
+      if(vistos.has(codigo)){errores.push(`Fila ${i+1}: código repetido ${codigo}`);return}
+      vistos.add(codigo);filas.push({codigo,nombre,paralelo})});
+    const porPar={};filas.forEach(f=>porPar[f.paralelo]=(porPar[f.paralelo]||0)+1);
+    $("prev").innerHTML=`<div class="msg ${errores.length?"err":"info"}"><b>${filas.length} estudiantes listos para cargar</b> · ${Object.entries(porPar).map(([p,n])=>`${esc(p)}: ${n}`).join(" · ")}
+     ${errores.length?`<br>${errores.length} filas con problemas: ${errores.slice(0,5).map(esc).join("; ")}${errores.length>5?"…":""}`:""}</div>
+     ${filas.length?`<button class="btn" id="cargar">Cargar ${filas.length} estudiantes</button>`:""}`;
+    if($("cargar"))$("cargar").onclick=async()=>{const b=$("cargar");b.disabled=true;b.textContent="Cargando…";
+      for(let i=0;i<filas.length;i+=400){const {error}=await sb.from("estudiantes").upsert(filas.slice(i,i+400),{onConflict:"codigo"});
+        if(error){$("prev").innerHTML=`<div class="msg err">${esc(error.message)}</div>`;return;}}
+      $("prev").innerHTML=`<div class="msg ok">Se cargaron ${filas.length} estudiantes.</div>`;$("pega").value="";$("arch").value="";listar();};
+  };
+  $("arch").onchange=()=>{const f=$("arch").files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$("pega").value=r.result;analizar(r.result)};r.readAsText(f,"utf-8");};
+  $("pega").oninput=()=>analizar($("pega").value);
+  let todos=[],ints={};
+  const pintar=()=>{const q=$("busca").value.trim().toLowerCase();const l=todos.filter(e=>!q||e.nombre.toLowerCase().includes(q)||e.codigo.toLowerCase().includes(q));
+    $("lst").innerHTML=todos.length?`<p class="muted small">${todos.length} estudiantes · ${Object.values(ints).filter(f=>f==="entregado").length} ya entregaron</p><table class="q"><tr><th>Código</th><th>Nombre</th><th>Paralelo</th><th>Prueba</th><th>Estado</th><th></th></tr>
+    ${l.slice(0,300).map(e=>`<tr><td style="font-family:var(--mono)">${esc(e.codigo)}</td><td>${esc(e.nombre)}</td><td>${esc(e.paralelo)}</td>
+     <td>${ints[e.codigo]==="entregado"?`<span class="flag ok">Entregó</span>`:ints[e.codigo]?`<span class="flag info">En curso</span>`:`<span class="muted small">Pendiente</span>`}</td>
+     <td>${e.activo?`<span class="flag ok">Habilitado</span>`:`<span class="flag off">Inhabilitado</span>`}</td>
+     <td><button class="btn ghost sm tog" data-c="${esc(e.codigo)}" data-a="${e.activo?0:1}">${e.activo?"Inhabilitar":"Habilitar"}</button></td></tr>`).join("")}</table>${l.length>300?`<p class="muted small">Se muestran 300 de ${l.length}. Usa el buscador.</p>`:""}`
+    :`<p class="muted">Aún no hay estudiantes. Sube la lista arriba.</p>`;
+    $("lst").querySelectorAll(".tog").forEach(b=>b.onclick=async()=>{b.disabled=true;await sb.from("estudiantes").update({activo:b.dataset.a==="1"}).eq("codigo",b.dataset.c);listar();});};
+  const listar=async()=>{const [{data:e},{data:i}]=await Promise.all([sb.from("estudiantes").select("*").order("paralelo").order("nombre"),sb.from("intentos").select("estudiante_codigo,fase")]);
+    todos=e||[];ints=Object.fromEntries((i||[]).map(x=>[x.estudiante_codigo,x.fase]));pintar();};
+  $("busca").oninput=pintar;listar();
+},
+
+/* ---------- Corrección con rúbrica (anónima) ---------- */
+async correccion(m){
+  await Staff.bancoDocente();
+  const {ints}=await cargarIntentos(true);
+  const F=V._c||(V._c={dom:AREAS[Staff.perfil.area]||"L"});
+  const cola=[];ints.forEach(a=>itemsDelPlan(a.plan).forEach(it=>{if(it.t==="rc"&&it.d===F.dom&&a.notas?.[it.c]===undefined)cola.push({a,it})}));
+  cola.sort((x,y)=>x.it.c.localeCompare(y.it.c));
+  const hechas=ints.reduce((s,a)=>s+itemsDelPlan(a.plan).filter(it=>it.t==="rc"&&it.d===F.dom&&a.notas?.[it.c]!==undefined).length,0);
+  m.innerHTML=`<div class="stackp"><div class="panel"><div class="row between"><div><div class="eyebrow">Corrección con rúbrica</div><h1>Respuestas abiertas</h1></div>
+   <div class="seg" id="sd">${ORDEN.map(d=>`<button data-v="${d}" aria-pressed="${F.dom===d}">${DOMC[d]}</button>`).join("")}</div></div>
+   <p class="muted">La corrección es anónima: no ves el nombre del estudiante. ${cola.length} pendientes y ${hechas} corregidas en ${DOMC[F.dom]}.</p></div>
+   ${cola.slice(0,20).map((x,k)=>`<div class="panel" data-k="${k}"><div><span class="tag">${x.it.c}</span><span class="tag">${x.it.ao}</span><span class="tag">${x.it.n}</span><span class="tag">${x.it.proc}</span></div>
+    <p class="qtext"><b>${esc(x.it.q)}</b></p>
+    <div class="stim" style="background:var(--bg);border:1px solid var(--line)">${esc(x.a.respuestas?.[x.it.c]||"(sin respuesta)")}</div>
+    ${x.it.r.map((r,n)=>`<label class="opt"><input type="radio" name="g${k}" value="${n}"><span><span class="cred">${n}</span>${esc(r)}</span></label>`).join("")}
+    <p class="saved" id="g${k}s"></p></div>`).join("")}
+   ${cola.length?(cola.length>20?`<div class="panel"><p class="muted">Se muestran 20 de ${cola.length}. Al terminar, recarga la pestaña para ver las siguientes.</p><button class="btn" id="mas">Ver las siguientes</button></div>`:""):`<div class="panel"><p class="muted">No hay respuestas pendientes en ${DOMC[F.dom]}.</p></div>`}</div>`;
+  m.querySelectorAll("#sd button").forEach(b=>b.onclick=()=>{F.dom=b.dataset.v;V.correccion(m)});
+  if($("mas"))$("mas").onclick=()=>V.correccion(m);
+  cola.slice(0,20).forEach((x,k)=>m.querySelectorAll(`input[name=g${k}]`).forEach(r=>r.onchange=async()=>{
+    const s=$(`g${k}s`);s.textContent="Guardando…";
+    const {data:act}=await sb.from("intentos").select("notas").eq("id",x.a.id).single();
+    const notas={...(act?.notas||{}),[x.it.c]:+r.value};
+    const {error}=await sb.from("intentos").update({notas}).eq("id",x.a.id);
+    s.textContent=error?"No se guardó: "+error.message:"Guardado ✓";x.a.notas=notas;}));
+},
+
+/* ---------- Docentes ---------- */
+async docentes(m){
+  m.innerHTML=`<div class="stackp"><div class="panel"><div class="eyebrow">Administración</div><h2>Registrar un docente</h2>
+   <p class="muted small">Se crea la cuenta con una contraseña temporal que debes entregarle. El docente la cambia en su primer ingreso.</p>
+   <form id="f"><div class="fields"><div><label for="n">Nombre completo</label><input id="n" required></div>
+    <div><label for="c">Correo institucional</label><input id="c" type="email" required></div>
+    <div><label for="a">Área</label><select id="a"><option value="Lectura">Lengua y Literatura</option><option value="Matematica">Matemática</option><option value="Ciencias">Ciencias Naturales</option><option value="Ciudadania">Estudios Sociales</option><option value="General">General / coordinación</option></select></div></div>
+    <p></p><button class="btn" id="b">Registrar</button></form><div id="m"></div></div>
+   <div class="panel"><h2>Docentes registrados</h2><div id="lst" class="scroll"><p class="muted">Cargando…</p></div></div></div>`;
+  const mostrarClave=(r,dest)=>{dest.innerHTML=`<div class="msg ok">Contraseña temporal de <b>${esc(r.correo)}</b>: <b style="font-family:var(--mono);font-size:16px">${esc(r.clave_temporal)}</b> <button class="btn ghost sm" id="cp">Copiar</button><br>Entrégasela junto con el enlace del sitio. No se vuelve a mostrar.</div>`;
+    $("cp").onclick=()=>navigator.clipboard.writeText(r.clave_temporal).then(()=>$("cp").textContent="Copiada",()=>{})};
+  $("f").onsubmit=async e=>{e.preventDefault();const b=$("b");b.disabled=true;$("m").innerHTML="";
+    try{const r=await llamar("crear_docente",{nombre:$("n").value.trim(),correo:$("c").value.trim().toLowerCase(),area:$("a").value},true);mostrarClave(r,$("m"));$("f").reset();listar();}
+    catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}b.disabled=false;};
+  const listar=async()=>{const {data,error}=await sb.from("perfiles").select("*").eq("rol","docente").order("nombre");
+    if(error){$("lst").innerHTML=`<div class="msg err">${esc(error.message)}</div>`;return;}
+    $("lst").innerHTML=data.length?`<table class="q"><tr><th>Nombre</th><th>Correo</th><th>Área</th><th>Último ingreso</th><th>Estado</th><th></th></tr>
+    ${data.map(x=>`<tr><td>${esc(x.nombre)}</td><td>${esc(x.correo)}</td><td>${esc(x.area)}</td><td class="small">${x.debe_cambiar_clave?`<span class="flag warn">Aún no ingresa</span>`:fmtFecha(x.ultimo_ingreso_en)}</td>
+     <td>${x.activo?`<span class="flag ok">Activo</span>`:`<span class="flag off">Inactivo</span>`}</td>
+     <td><div class="row"><button class="btn ghost sm est" data-id="${x.id}" data-a="${x.activo?0:1}">${x.activo?"Desactivar":"Activar"}</button><button class="btn ghost sm rst" data-id="${x.id}">Nueva contraseña</button></div><div class="rs" id="rs${x.id}"></div></td></tr>`).join("")}</table>`
+    :`<p class="muted">Aún no has registrado docentes.</p>`;
+    $("lst").querySelectorAll(".est").forEach(b=>b.onclick=async()=>{b.disabled=true;await sb.from("perfiles").update({activo:b.dataset.a==="1"}).eq("id",b.dataset.id);listar();});
+    $("lst").querySelectorAll(".rst").forEach(b=>b.onclick=async()=>{b.disabled=true;try{const r=await llamar("restablecer_clave",{id:b.dataset.id},true);mostrarClave(r,$("rs"+b.dataset.id));}catch(err){$("rs"+b.dataset.id).innerHTML=`<div class="msg err">${esc(err.message)}</div>`;b.disabled=false;}});};
+  listar();
+},
+async accesos(m){
+  const {data,error}=await sb.from("accesos").select("*").order("en",{ascending:false}).limit(300);if(error)throw error;
+  m.innerHTML=`<div class="panel"><div class="eyebrow">Auditoría</div><h2>Ingresos y acciones del personal</h2><div class="scroll">${data.length?`<table class="q"><tr><th>Fecha y hora</th><th>Usuario</th><th>Evento</th></tr>
+   ${data.map(x=>`<tr><td class="small">${fmtFecha(x.en)}</td><td>${esc(x.correo||"—")}</td><td>${esc(x.evento)}</td></tr>`).join("")}</table>`:`<p class="muted">Todavía no hay registros.</p>`}</div></div>`;
+},
+
+/* ---------- Simulador docente ---------- */
+async sim(m){
+  const banco=await Staff.bancoDocente();
+  const S=V._sim||(V._sim={paso:"intro"});
+  const BL={};ORDEN.forEach(d=>["A","B"].forEach(f=>BL[d+f]=banco[d].unidades.filter(u=>u.bloque===f)));
+  const lista=k=>BL[k].flatMap(u=>u.items.map(i=>({...i,un:u})));
+  const cuad=k=>{const rot=k%4,alt=k>>2;return ORDEN.map((_,j)=>ORDEN[(j+rot)%4]).map((d,j)=>d+(((j+alt)%2)?"B":"A"))};
+  if(S.paso==="intro"){m.innerHTML=`<div class="panel" style="max-width:700px"><div class="eyebrow">Simulador · modo práctica</div><h1>Vive la prueba como un estudiante</h1>
+    <p>Responderás <b>4 bloques</b>, uno por dominio, con 5 situaciones de 3 preguntas cada una. Es el mismo formato que verán los estudiantes, pero aquí el tiempo es libre y nada se guarda como resultado.</p>
+    <p class="muted">Al terminar verás la corrección con claves, rúbricas y destrezas AO.</p><button class="btn" id="go">Comenzar simulación</button></div>`;
+    $("go").onclick=()=>{const k=Math.floor(Math.random()*8);Object.assign(S,{paso:"prueba",k,bls:cuad(k),b:0,i:0,resp:{}});V.sim(m)};return;}
+  if(S.paso==="prueba"){const k=S.bls[S.b],l=lista(k),it=l[S.i],v=S.resp[it.c];
+    let campo=it.t==="sm"?it.o.map((o,j)=>`<label class="opt ${v===j?"sel":""}"><input type="radio" name="r" value="${j}" ${v===j?"checked":""}><span><b>${"ABCD"[j]})</b> ${esc(o)}</span></label>`).join(""):it.t==="num"?`<label for="rn">Tu respuesta</label><input id="rn" inputmode="decimal" value="${esc(v)}" style="max-width:220px">`:`<label for="rt">Tu respuesta</label><textarea id="rt">${esc(v)}</textarea>`;
+    let pal="",u="";l.forEach((x,j)=>{if(x.un.id!==u){u=x.un.id;pal+=`<div class="u">${esc(x.un.titulo)}</div>`}pal+=`<button data-j="${j}" class="${S.resp[x.c]!==undefined&&S.resp[x.c]!==""?"done":""} ${j===S.i?"cur":""}">${j+1}</button>`});
+    m.innerHTML=`<div class="test"><div class="panel"><div class="row between"><div class="eyebrow"><span class="dtag" style="background:var(--d${k[0]})"></span>Bloque ${S.b+1} de 4 · ${DOM[k[0]]}</div><span class="muted small">Cuadernillo ${S.k+1}</span></div>
+     <h2>${esc(it.un.titulo)}</h2><div class="stim">${it.un.stim}</div><p class="qtext"><b>Pregunta ${S.i+1}.</b> ${esc(it.q)}</p>${campo}
+     <p></p><div class="row"><button class="btn ghost" id="prev" ${S.i===0?"disabled":""}>Anterior</button><button class="btn" id="next">${S.i<l.length-1?"Siguiente":S.b<3?"Terminar bloque":"Ver corrección"}</button></div></div>
+     <aside class="panel"><div class="eyebrow">Preguntas</div><div class="pal">${pal}</div></aside></div>`;
+    m.querySelectorAll("input[name=r]").forEach(r=>r.onchange=()=>{S.resp[it.c]=+r.value;V.sim(m)});
+    if($("rn"))$("rn").oninput=e=>S.resp[it.c]=e.target.value;if($("rt"))$("rt").oninput=e=>S.resp[it.c]=e.target.value;
+    $("prev").onclick=()=>{S.i--;V.sim(m)};$("next").onclick=()=>{if(S.i<l.length-1)S.i++;else if(S.b<3){S.b++;S.i=0}else S.paso="fin";V.sim(m);window.scrollTo(0,0)};
+    m.querySelectorAll(".pal button").forEach(b=>b.onclick=()=>{S.i=+b.dataset.j;V.sim(m)});return;}
+  let h=`<div class="stackp"><div class="panel"><div class="eyebrow">Corrección</div><h1>Tu simulación</h1><p class="muted">Cada ítem con su clave, su rúbrica y su destreza. Las preguntas abiertas se califican con rúbrica.</p></div>`;
+  S.bls.forEach(k=>{h+=`<div class="panel"><h2><span class="dtag" style="background:var(--d${k[0]})"></span>${DOM[k[0]]}</h2>`;
+    lista(k).forEach(it=>{const v=S.resp[it.c];let c=null;if(it.t==="sm")c=v===it.k;else if(it.t==="num")c=v!==undefined&&v!==""&&Math.abs(parseFloat(String(v).replace(",","."))-it.k)<=(it.tol||0)+1e-9;
+      h+=`<div style="padding:10px 0;border-top:1px solid var(--line)"><div class="row between"><div><span class="tag">${it.c}</span><span class="tag">${it.ao}</span><span class="tag">${it.n}</span><span class="tag">${it.proc}</span></div>${it.t==="rc"?`<span class="muted small">Rúbrica</span>`:c?`<span class="flag ok">Correcta</span>`:`<span class="flag off">Revisar</span>`}</div><p class="qtext">${esc(it.q)}</p>`;
+      if(it.t==="sm")h+=it.o.map((o,j)=>`<div class="opt ${j===it.k?"key":""} ${v===j&&j!==it.k?"sel":""}" style="cursor:default"><span><b>${"ABCD"[j]})</b> ${esc(o)} ${j===it.k?"✓":""}</span></div>`).join("");
+      else if(it.t==="num")h+=`<p>Tu respuesta: <b>${esc(v||"—")}</b> · Clave: <b>${esc(it.k)}</b>${it.tol?` (±${it.tol})`:""}</p>`;
+      else h+=`<p>Tu respuesta: ${esc(v||"—")}</p>`+it.r.map((r,n)=>`<div class="rub"><span class="cred">${n}</span>${esc(r)}</div>`).join("");h+=`</div>`});h+=`</div>`});
+  m.innerHTML=h+`<div class="panel"><button class="btn" id="otra">Repetir con otro cuadernillo</button></div></div>`;$("otra").onclick=()=>{V._sim={paso:"intro"};V.sim(m)};
+},
+async revision(m){
+  const banco=await Staff.bancoDocente();
+  if(!V._rev)V._rev=AREAS[Staff.perfil.area]||"L";const d=V._rev;
+  m.innerHTML=`<div class="stackp"><div class="panel"><div class="row between"><div><div class="eyebrow">Revisión docente</div><h2>Banco de ítems con claves</h2></div>
+   <div class="seg">${ORDEN.map(x=>`<button data-d="${x}" aria-pressed="${d===x}">${DOMC[x]}</button>`).join("")}</div></div>
+   <p class="muted small">Material reservado para docentes. No debe compartirse con estudiantes antes de la aplicación.</p></div>
+   ${banco[d].unidades.map(u=>`<div class="panel"><div class="eyebrow">${u.id} · Bloque ${u.bloque}${u.subdominio?" · "+u.subdominio:""}</div><h2>${esc(u.titulo)}</h2><div class="stim">${u.stim}</div>
+    ${u.items.map(it=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div><span class="tag">${it.c}</span><span class="tag">${it.ao}</span><span class="tag">${it.n}</span><span class="tag">${it.proc}</span><span class="tag">${it.dif}</span></div><p class="qtext"><b>${esc(it.q)}</b></p>
+     ${it.t==="sm"?it.o.map((o,j)=>`<div class="opt ${j===it.k?"key":""}" style="cursor:default"><span><b>${"ABCD"[j]})</b> ${esc(o)} ${j===it.k?"✓ clave":""}</span></div>`).join(""):it.t==="num"?`<p>Respuesta: <b>${esc(it.k)}</b>${it.tol?` (±${it.tol})`:""}</p>`:it.r.map((r,n)=>`<div class="rub"><span class="cred">${n}</span>${esc(r)}</div>`).join("")}</div>`).join("")}</div>`).join("")}</div>`;
+  m.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{V._rev=b.dataset.d;V.revision(m)});
+},
+marco(m){
+  const MAT=[["L","Localizar",8,"25 %"],["L","Comprender",13,"45 %"],["L","Evaluar y reflexionar",9,"30 %"],["M","Formular",8,"25 %"],["M","Emplear",15,"50 %"],["M","Interpretar",7,"25 %"],
+   ["C","Explicar fenómenos",12,"40 %"],["C","Evaluar y diseñar indagación",8,"25 %"],["C","Interpretar datos",10,"35 %"],["S","Conocer y comprender",10,"35 %"],["S","Analizar fuentes",12,"40 %"],["S","Razonar y proponer",8,"25 %"]];
+  m.innerHTML=`<div class="stackp"><div class="panel"><div class="row" style="gap:16px">${logoSVG(72)}<div><div class="eyebrow">Marco de evaluación</div><h1>Cómo funciona PRISMA 2027</h1></div></div>
+   <p>PRISMA (Prueba de Rendimiento Integral en Saberes y Metas de Aprendizaje) es una evaluación diagnóstica tipo PISA para 10.º EGB de ANAI Online. Como un prisma que separa la luz en colores, no entrega una sola nota: muestra qué se domina y qué falta en cada dominio, proceso y destreza, tomando como meta el Ecosistema Curricular 2027–2028.</p>
+   <div class="row">${ORDEN.map(d=>`<span class="tag"><span class="dtag" style="background:var(--d${d})"></span>${DOM[d]}</span>`).join("")}</div></div>
+   <div class="grid2"><div class="panel"><h2>Cómo se aplica</h2><ul><li>Presencial, en los laboratorios, con navegador bloqueado.</li><li>Cada estudiante recibe al azar uno de 8 cuadernillos equivalentes (60 de 120 ítems).</li><li>El orden de las situaciones y de las opciones se mezcla para cada estudiante.</li><li>El tiempo y la corrección se controlan en el servidor; las claves nunca llegan al equipo del estudiante.</li><li>Las respuestas abiertas se corrigen con rúbrica, de forma anónima.</li></ul></div>
+   <div class="panel"><h2>Niveles de desempeño</h2><div class="row">${NIV.map((n,i)=>`<span class="tag" style="background:var(--lv${i});color:#fff">${i} · ${n}</span>`).join("")}</div><p class="muted small" style="margin-top:10px">El nivel 2 (Básico) es el umbral mínimo esperado al terminar 10.º.</p></div></div>
+   <div class="panel"><h2>Matriz de especificaciones</h2><div class="scroll"><table class="q"><tr><th>Dominio</th><th>Proceso</th><th>Ítems</th><th>Peso</th></tr>${MAT.map(r=>`<tr><td>${DOM[r[0]]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("")}</table></div></div></div>`;
 }
+};
+
+/* Proyección del código de sesión para el laboratorio */
+function proyectar(codigo,nombre){
+  const url=location.origin+location.pathname+"#estudiante";
+  const d=document.createElement("div");d.className="proyector";
+  d.innerHTML=`<div><div style="display:flex;justify-content:center">${marca("Evaluación diagnóstica · 10.º EGB")}</div><p class="muted" style="margin-top:24px">${esc(nombre)}</p>
+   <p style="font-size:20px">1. Abre <b style="font-family:var(--mono)">${esc(url)}</b></p><p style="font-size:20px">2. Escribe tu código de estudiante y este código de sesión:</p>
+   <div class="codigo-big">${esc(codigo)}</div><p></p><button class="btn ghost" id="cerrarP">Cerrar</button></div>`;
+  document.body.appendChild(d);d.querySelector("#cerrarP").onclick=()=>d.remove();
+  try{d.requestFullscreen&&d.requestFullscreen().catch(()=>{})}catch(e){}
+}
+arrancar();
 </script></body></html>
