@@ -343,10 +343,7 @@ const Staff={perfil:null,banco:null,tab:null,
      <label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password" required>
      <div id="m"></div><p></p><div class="row between"><button class="btn" id="b">Ingresar</button><a href="#" id="olv" class="small" style="color:var(--cyan)">¿Olvidaste tu contraseña?</a></div></form>
      <p class="foot muted">¿Eres estudiante y vas a rendir la prueba? <a href="#estudiante">Ingresa aquí</a></p></div></div>`;
-    $("olv").onclick=async ev=>{ev.preventDefault();const correo=$("e").value.trim().toLowerCase();
-      if(!correo){$("m").innerHTML=`<div class="msg info">Escribe tu correo arriba y vuelve a pulsar «¿Olvidaste tu contraseña?».</div>`;return;}
-      try{await llamar("olvido",{correo});$("m").innerHTML=`<div class="msg ok">Si el correo está registrado, en unos minutos recibirás un enlace para crear una contraseña nueva. Revisa también la carpeta de correo no deseado.</div>`;}
-      catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}};
+    $("olv").onclick=ev=>{ev.preventDefault();$("m").innerHTML=`<div class="msg info">Pide a tu administrador una contraseña temporal nueva. Con ella ingresas y creas tu propia contraseña.</div>`;};
     $("f").onsubmit=async e=>{e.preventDefault();const b=$("b");b.disabled=true;b.textContent="Ingresando…";$("m").innerHTML="";
       const {error}=await sb.auth.signInWithPassword({email:$("e").value.trim().toLowerCase(),password:$("p").value});
       if(error){$("m").innerHTML=`<div class="msg err">Correo o contraseña incorrectos.</div>`;b.disabled=false;b.textContent="Ingresar";return;}
@@ -627,32 +624,36 @@ async docentes(m){
    <form id="f"><div class="fields"><div><label for="n">Nombre completo</label><input id="n" required></div>
     <div><label for="c">Correo institucional</label><input id="c" type="email" required></div>
     <div><label for="a">Área</label><select id="a">${opc("Lectura")}</select></div></div>
-    <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="inv" checked style="width:auto"> Enviar invitación por correo desde notificacionesonline@anai.edu.ec</label>
-    <p class="muted small">Con invitación, el docente recibe un enlace para crear su contraseña. Sin invitación, verás una contraseña temporal para entregársela tú.</p>
+    <p class="muted small">Se crea la cuenta con una contraseña temporal y un mensaje listo para que lo copies y se lo envíes al docente por correo o WhatsApp. En su primer ingreso, el docente crea su propia contraseña.</p>
     <button class="btn" id="b">Registrar</button></form><div id="m"></div></div>
-   <div class="panel"><div class="row between"><h2>Docentes registrados</h2><div class="row"><button class="btn ghost sm" id="prob">Enviarme un correo de prueba</button><button class="btn ghost sm" id="act">Actualizar</button></div></div><div id="pm"></div><div id="lst" class="scroll"><p class="muted">Cargando…</p></div></div></div>`;
+   <div class="panel"><div class="row between"><h2>Docentes registrados</h2><button class="btn ghost sm" id="act">Actualizar</button></div><div id="pm"></div><div id="lst" class="scroll"><p class="muted">Cargando…</p></div></div></div>`;
   $("act").onclick=()=>listar();
-  $("prob").onclick=async()=>{$("prob").disabled=true;try{const r=await llamar("probar_correo",{},true);$("pm").innerHTML=`<div class="msg info">Correo de prueba en camino a <b>${esc(r.correo)}</b>. Si el servicio estaba en reposo puede tardar hasta un minuto.</div>`;}catch(err){$("pm").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}$("prob").disabled=false;};
   let ultimos={};
   const estadoCorreo=c=>{const x=ultimos[c];if(!x)return `<span class="muted small">—</span>`;
     return x.estado==="enviado"?`<span class="flag ok" title="${fmtFecha(x.actualizado_en)}">Enviado</span>`:x.estado==="pendiente"?`<span class="flag info">Enviando…</span>`:`<span class="flag off" title="${esc(x.detalle||"")}">Falló</span><div class="small" style="color:var(--bad);max-width:220px">${esc((x.detalle||"").slice(0,120))}</div>`;};
   const mostrarRes=(r,dest)=>{
     if(r.invitado){dest.innerHTML=`<div class="msg ok">La invitación a <b>${esc(r.correo)}</b> está en camino. Puede tardar hasta un minuto; mira su estado en la columna <b>Correo</b>.</div>`;setTimeout(listar,20000);setTimeout(listar,70000);return;}
-    dest.innerHTML=`${r.aviso?`<div class="msg err">${esc(r.aviso)}</div>`:""}<div class="msg ok">Contraseña temporal de <b>${esc(r.correo)}</b>: <b style="font-family:var(--mono);font-size:16px">${esc(r.clave_temporal)}</b> <button class="btn ghost sm cp">Copiar</button><br>Entrégasela junto con el enlace del sitio. No se vuelve a mostrar.</div>`;
-    dest.querySelector(".cp").onclick=e=>navigator.clipboard.writeText(r.clave_temporal).then(()=>e.target.textContent="Copiada",()=>{});};
+    const d=datos.find(x=>x.correo===r.correo)||{nombre:$("n")?.value||""};
+    const sitio=location.origin+location.pathname;
+    const texto=`Estimado/a ${d.nombre||""}:\n\nYa tienes acceso a PRISMA 2027, la evaluación diagnóstica de 10.º EGB de ANAI Online. Allí puedes vivir la prueba en el simulador, revisar el banco de ítems con sus claves y rúbricas, y conocer el marco de evaluación.\n\nIngresa en: ${sitio}\nUsuario: ${r.correo}\nContraseña temporal: ${r.clave_temporal}\n\nEn tu primer ingreso el sistema te pedirá crear tu propia contraseña.\n\nSaludos cordiales.`;
+    dest.innerHTML=`<div class="msg ok">Cuenta lista para <b>${esc(r.correo)}</b>. Contraseña temporal: <b style="font-family:var(--mono);font-size:16px">${esc(r.clave_temporal)}</b> (no se vuelve a mostrar).
+     <p style="margin:8px 0 4px">Mensaje para enviarle por correo o WhatsApp:</p><textarea readonly style="min-height:190px;font-size:13px;background:var(--surface)">${esc(texto)}</textarea>
+     <div class="row" style="margin-top:6px"><button class="btn sm cp">Copiar mensaje</button></div></div>`;
+    const ta=dest.querySelector("textarea");
+    dest.querySelector(".cp").onclick=e=>navigator.clipboard.writeText(texto).then(()=>e.target.textContent="Mensaje copiado",()=>{ta.select();e.target.textContent="Selecciona y copia (Ctrl+C)"});};
   $("f").onsubmit=async e=>{e.preventDefault();const b=$("b");b.disabled=true;b.textContent="Registrando…";$("m").innerHTML="";
-    try{const r=await llamar("crear_docente",{nombre:$("n").value.trim(),correo:$("c").value.trim().toLowerCase(),area:$("a").value,invitar:$("inv").checked},true);mostrarRes(r,$("m"));$("n").value="";$("c").value="";listar();}
+    try{const r=await llamar("crear_docente",{nombre:$("n").value.trim(),correo:$("c").value.trim().toLowerCase(),area:$("a").value},true);mostrarRes(r,$("m"));$("n").value="";$("c").value="";listar();}
     catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}b.disabled=false;b.textContent="Registrar";};
   let datos=[];
   const fila=x=>`<tr id="tr${x.id}"><td>${esc(x.nombre)}</td><td>${esc(x.correo)}</td><td>${esc((AREAS_OPC.find(a=>a[0]===x.area)||[0,x.area])[1])}</td>
-     <td class="small">${x.debe_cambiar_clave?`<span class="flag warn">Aún no activa</span>`:fmtFecha(x.ultimo_ingreso_en)}</td><td>${estadoCorreo(x.correo)}</td>
+     <td class="small">${x.debe_cambiar_clave?`<span class="flag warn">Aún no activa</span>`:fmtFecha(x.ultimo_ingreso_en)}</td>
      <td>${x.activo?`<span class="flag ok">Activo</span>`:`<span class="flag off">Inactivo</span>`}</td>
-     <td><div class="row"><button class="btn ghost sm ed" data-id="${x.id}">Editar</button><button class="btn ghost sm env" data-id="${x.id}">Reenviar acceso</button><button class="btn ghost sm rst" data-id="${x.id}">Contraseña temporal</button>
+     <td><div class="row"><button class="btn ghost sm ed" data-id="${x.id}">Editar</button><button class="btn ghost sm rst" data-id="${x.id}">Nueva contraseña temporal</button>
       <button class="btn ghost sm est" data-id="${x.id}" data-a="${x.activo?0:1}">${x.activo?"Desactivar":"Activar"}</button><button class="btn ghost sm del" data-id="${x.id}" style="color:var(--bad)">Eliminar</button></div><div id="rs${x.id}"></div></td></tr>`;
   const listar=async()=>{const {data,error}=await sb.from("perfiles").select("*").eq("rol","docente").order("nombre");
     if(error){$("lst").innerHTML=`<div class="msg err">${esc(error.message)}</div>`;return;}datos=data;
-    const {data:cs}=await sb.from("correos").select("para,estado,detalle,actualizado_en").order("creado_en",{ascending:false}).limit(500);ultimos={};(cs||[]).forEach(c=>{if(!ultimos[c.para])ultimos[c.para]=c});
-    $("lst").innerHTML=data.length?`<table class="q"><tr><th>Nombre</th><th>Usuario</th><th>Área</th><th>Último ingreso</th><th>Correo</th><th>Estado</th><th>Acciones</th></tr>${data.map(fila).join("")}</table>`:`<p class="muted">Aún no has registrado docentes.</p>`;
+
+    $("lst").innerHTML=data.length?`<table class="q"><tr><th>Nombre</th><th>Usuario</th><th>Área</th><th>Último ingreso</th><th>Estado</th><th>Acciones</th></tr>${data.map(fila).join("")}</table>`:`<p class="muted">Aún no has registrado docentes.</p>`;
     const L=$("lst"),rs=id=>$("rs"+id);
     L.querySelectorAll(".est").forEach(b=>b.onclick=async()=>{b.disabled=true;await sb.from("perfiles").update({activo:b.dataset.a==="1"}).eq("id",b.dataset.id);listar();});
     L.querySelectorAll(".rst").forEach(b=>b.onclick=async()=>{b.disabled=true;try{mostrarRes(await llamar("restablecer_clave",{id:b.dataset.id},true),rs(b.dataset.id));}catch(err){rs(b.dataset.id).innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}b.disabled=false;});
@@ -665,7 +666,7 @@ async docentes(m){
       rs(x.id).querySelector(".no").onclick=()=>rs(x.id).innerHTML="";
       rs(x.id).querySelector(".si").onclick=async e=>{e.target.disabled=true;try{await llamar("eliminar_docente",{id:x.id},true);listar();}catch(err){rs(x.id).innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}};});
     L.querySelectorAll(".ed").forEach(b=>b.onclick=()=>{const x=datos.find(d=>d.id===b.dataset.id);
-      $("tr"+x.id).innerHTML=`<td colspan="7"><form class="fields" id="fe${x.id}"><div><label>Nombre completo</label><input name="n" required value="${esc(x.nombre)}"></div>
+      $("tr"+x.id).innerHTML=`<td colspan="6"><form class="fields" id="fe${x.id}"><div><label>Nombre completo</label><input name="n" required value="${esc(x.nombre)}"></div>
        <div><label>Correo institucional</label><input name="c" type="email" required value="${esc(x.correo)}"></div><div><label>Área</label><select name="a">${opc(x.area)}</select></div>
        <div style="align-self:end"><div class="row" style="margin-top:8px"><button class="btn sm">Guardar</button><button type="button" class="btn ghost sm cn">Cancelar</button></div></div></form>
        <p class="muted small">Si cambias el correo, el docente ingresará con el nuevo. Su contraseña no cambia.</p><div class="me"></div></td>`;
