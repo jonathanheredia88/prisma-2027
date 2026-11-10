@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRISMA 2027</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#f4f7fa;--surface:#fff;--fg:#0f2233;--muted:#5a6b7b;--line:#d7e0e8;
+  --navy:#0a3a63;--cyan:#0093c7;--cyan-soft:#e2f3fa;
+  --ok:#1f7a4d;--warn:#9a5c00;--bad:#b3261e;
+  --lv0:#b3261e;--lv1:#d9822b;--lv2:#c9a400;--lv3:#3d9a6b;--lv4:#1f6f99;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media(prefers-color-scheme:dark){:root{--bg:#0c1620;--surface:#13212e;--fg:#e4edf4;--muted:#93a5b5;--line:#25384a;--navy:#cfe4f5;--cyan:#38bdf0;--cyan-soft:#12354a;--warn:#e0a640;--bad:#ef6b62;--ok:#5cc48d;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--sans)}
+.wrap{max-width:1120px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-left,0px)) 48px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-bottom:2px solid var(--cyan);padding-bottom:12px;margin-bottom:20px}
+.brand b{color:var(--navy);font-size:18px}.brand span{display:block;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:3px}
+.tabs button{border:0;background:none;color:var(--muted);padding:7px 14px;border-radius:6px;font:600 14px var(--sans);cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--navy);color:var(--bg)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;min-width:0}
+.stackp{display:grid;gap:16px}
+h1{font-size:24px;margin:0 0 6px;color:var(--navy)}h2{font-size:18px;margin:0 0 10px;color:var(--navy)}
+.muted{color:var(--muted)}.eyebrow{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan)}
+label{display:block;font-weight:600;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font:15px var(--sans)}
+textarea{min-height:120px}
+.btn{border:0;background:var(--navy);color:var(--bg);padding:10px 18px;border-radius:6px;font:600 14px var(--sans);cursor:pointer}
+.btn.ghost{background:none;color:var(--navy);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,.tabs button:focus-visible,.opt:focus-within,.pal button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.test{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:16px}
+@media(max-width:800px){.test{grid-template-columns:1fr}}
+.bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:14px}
+.timer{font:500 20px var(--mono);color:var(--navy)}.timer.low{color:var(--bad)}
+.stim{background:var(--cyan-soft);border-radius:8px;padding:14px 16px;margin:10px 0 18px;overflow-x:auto;max-width:72ch}
+.stim table{border-collapse:collapse;margin:8px 0}.stim td,.stim th{border:1px solid var(--line);padding:4px 10px;text-align:center}
+.qtext,.opt{max-width:72ch}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0;cursor:pointer;font-weight:400}
+.opt input{width:auto;margin-top:4px}.opt.sel{border-color:var(--cyan);background:var(--cyan-soft)}
+.opt.key{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.pal{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pal button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;padding:6px 0;font:500 13px var(--mono);cursor:pointer}
+.pal button.done{background:var(--navy);color:var(--bg)}.pal button.cur{outline:2px solid var(--cyan)}
+.pal .u{grid-column:1/-1;font:500 11px var(--mono);color:var(--muted);margin-top:6px}
+.tag{display:inline-block;font:500 11px var(--mono);padding:2px 7px;border-radius:4px;background:var(--cyan-soft);color:var(--navy);margin:0 4px 2px 0}
+table.q{width:100%;border-collapse:collapse;font-size:14px}table.q td,table.q th{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+table.q th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.scroll{overflow-x:auto}
+.flag{font:600 11px var(--mono);padding:2px 6px;border-radius:4px}
+.flag.ok{color:var(--ok);border:1px solid var(--ok)}.flag.off{color:var(--bad);border:1px solid var(--bad)}
+.seg{display:flex;flex-wrap:wrap;gap:4px}.seg button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;padding:5px 10px;font:500 13px var(--sans);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--navy);color:var(--bg);border-color:var(--navy)}
+.center{min-height:70vh;display:grid;place-items:center}
+.card-sm{width:100%;max-width:440px}
+.msg{padding:10px 12px;border-radius:6px;font-size:14px;margin:10px 0}
+.msg.err{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
+.msg.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.rub{border-left:3px solid var(--cyan);padding:4px 0 4px 12px;margin:6px 0;font-size:14px}
+.cred{display:inline-block;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font:600 12px var(--mono);background:var(--navy);color:var(--bg);margin-right:8px}
+.notice{font-size:13px;color:var(--warn);font-weight:600}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap" id="root"><div class="center"><p class="muted">Cargando PRISMA 2027…</p></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SB_URL="https://rzyyckpsvjzdfdrouyxw.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6eXlja3Bzdmp6ZGZkcm91eXh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQyNzc1NzYsImV4cCI6MjEwOTg1MzU3Nn0.jw6RdcwFS8oWylCRcFTzu-YVJI_7DSgqsss-xkj7tEA";
+const API=SB_URL+"/functions/v1/prisma";
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
+const root=document.getElementById("root");
+const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const el=h=>{const d=document.createElement("div");d.innerHTML=h;return d};
+
+const DOM={L:"Competencia lectora",M:"Competencia matemática",C:"Competencia científica",S:"Ciudadanía y ciencias sociales"};
+const DOMC={L:"Lectura",M:"Matemática",C:"Ciencias",S:"Ciudadanía"};
+const PROC={L:["Localizar","Comprender","Evaluar y reflexionar"],M:["Formular","Emplear","Interpretar"],C:["Explicar fenómenos","Evaluar y diseñar indagación","Interpretar datos"],S:["Conocer y comprender","Analizar fuentes","Razonar y proponer"]};
+const ORDEN=["L","M","C","S"],NIV=["Inicial","Elemental","Básico","Satisfactorio","Destacado"];
+const AREAS={Lectura:"L",Matematica:"M",Ciencias:"C",Ciudadania:"S",General:null};
+
+let estado={perfil:null,banco:null};
+let S={};
+
+async function api(accion,datos){
+  const {data:{session}}=await sb.auth.getSession();
+  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json",
+    "Authorization":"Bearer "+(session?session.access_token:SB_KEY)},
+    body:JSON.stringify({accion,...datos})});
+  const j=await r.json().catch(()=>({error:"Respuesta no válida"}));
+  if(!r.ok)throw new Error(j.error||("Error "+r.status));
+  return j;
+}
+
+/* ---------------- Arranque y sesión ---------------- */
+init();
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session)return vistaLogin();
+  await cargarPerfil();
+}
+async function cargarPerfil(){
+  const {data,error}=await sb.from("perfiles").select("*").maybeSingle();
+  if(error||!data){await sb.auth.signOut();return vistaLogin("Tu cuenta no tiene acceso a PRISMA. Pide a tu administrador que te registre.");}
+  if(!data.activo){await sb.auth.signOut();return vistaLogin("Tu cuenta está desactivada. Contacta a tu administrador.");}
+  estado.perfil=data;
+  if(data.debe_cambiar_clave)return vistaCambiarClave();
+  try{await sb.from("accesos").insert({perfil_id:data.id,correo:data.correo,evento:"ingreso"});
+    await sb.from("perfiles").update({ultimo_ingreso_en:new Date().toISOString()}).eq("id",data.id);}catch(e){}
+  vistaApp();
+}
+
+function marco(){return `<header><div class="brand"><b>PRISMA 2027</b><span>ANAI Online · 10.º EGB</span></div></header>`}
+
+function vistaLogin(aviso){
+  root.innerHTML=`<div class="center"><div class="panel card-sm">
+   <div class="eyebrow">PRISMA 2027 · ANAI Online</div><h1>Acceso docente</h1>
+   <p class="muted">Ingresa con el correo y la contraseña que te entregó tu administrador.</p>
+   ${aviso?`<div class="msg err">${esc(aviso)}</div>`:""}
+   <form id="f"><label for="e">Correo</label><input id="e" type="email" autocomplete="username" required>
+   <label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password" required>
+   <div id="m"></div><p></p><button class="btn" id="b">Ingresar</button></form></div></div>`;
+  document.getElementById("f").onsubmit=async e=>{e.preventDefault();
+    const b=document.getElementById("b"),m=document.getElementById("m");b.disabled=true;b.textContent="Ingresando…";m.innerHTML="";
+    const {error}=await sb.auth.signInWithPassword({email:document.getElementById("e").value.trim().toLowerCase(),password:document.getElementById("p").value});
+    if(error){m.innerHTML=`<div class="msg err">Correo o contraseña incorrectos.</div>`;b.disabled=false;b.textContent="Ingresar";return;}
+    await cargarPerfil();};
+}
+
+function vistaCambiarClave(){
+  root.innerHTML=`<div class="center"><div class="panel card-sm">
+   <div class="eyebrow">Primer ingreso</div><h1>Crea tu contraseña</h1>
+   <p class="muted">Por seguridad, reemplaza la contraseña temporal por una propia (mínimo 8 caracteres).</p>
+   <form id="f"><label for="p1">Nueva contraseña</label><input id="p1" type="password" autocomplete="new-password" required minlength="8">
+   <label for="p2">Repite la contraseña</label><input id="p2" type="password" autocomplete="new-password" required minlength="8">
+   <div id="m"></div><p></p><button class="btn" id="b">Guardar y continuar</button></form></div></div>`;
+  document.getElementById("f").onsubmit=async e=>{e.preventDefault();
+    const m=document.getElementById("m"),b=document.getElementById("b");
+    const p1=document.getElementById("p1").value,p2=document.getElementById("p2").value;
+    if(p1!==p2){m.innerHTML=`<div class="msg err">Las contraseñas no coinciden.</div>`;return;}
+    b.disabled=true;b.textContent="Guardando…";
+    const {error}=await sb.auth.updateUser({password:p1});
+    if(error){m.innerHTML=`<div class="msg err">${esc(error.message)}</div>`;b.disabled=false;b.textContent="Guardar y continuar";return;}
+    await sb.from("perfiles").update({debe_cambiar_clave:false}).eq("id",estado.perfil.id);
+    estado.perfil.debe_cambiar_clave=false;await cargarPerfil();};
+}
+
+/* ---------------- App principal ---------------- */
+function vistaApp(){
+  const p=estado.perfil,admin=p.rol==="admin";
+  const tabs=admin?[["docentes","Docentes"],["accesos","Accesos"],["sim","Simulador"],["revision","Revisión"],["marco","Marco"]]
+                  :[["sim","Simulador"],["revision","Revisión"],["marco","Marco"]];
+  if(!S.tab)S.tab=tabs[0][0];
+  root.innerHTML=`<header><div class="brand"><b>PRISMA 2027</b><span>ANAI Online · 10.º EGB</span></div>
+   <div class="row"><div class="tabs" id="tabs">${tabs.map(t=>`<button data-t="${t[0]}" aria-pressed="${S.tab===t[0]}">${t[1]}</button>`).join("")}</div>
+   <button class="btn ghost" id="salir">Salir</button></div></header>
+   <div class="row" style="margin-bottom:14px"><span class="muted">${esc(p.nombre)} · ${esc(p.correo)} · ${admin?"Administrador":"Docente de "+p.area}</span></div>
+   <main id="main"></main>`;
+  document.getElementById("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;vistaApp()});
+  document.getElementById("salir").onclick=async()=>{await sb.auth.signOut();S={};estado.perfil=null;vistaLogin();};
+  ({docentes:panelDocentes,accesos:panelAccesos,sim:simulador,revision:revision,marco:panelMarco})[S.tab]();
+}
+
+/* ---------------- Admin: docentes ---------------- */
+async function panelDocentes(){
+  const main=document.getElementById("main");
+  main.innerHTML=`<div class="stackp"><div class="panel"><div class="eyebrow">Administración</div><h2>Registrar un docente</h2>
+   <p class="muted">Se crea la cuenta con una contraseña temporal que debes entregarle. Él la cambiará al primer ingreso.</p>
+   <form id="f" class="row" style="align-items:flex-end;gap:12px">
+    <div style="flex:1;min-width:180px"><label for="n">Nombre completo</label><input id="n" required></div>
+    <div style="flex:1;min-width:200px"><label for="c">Correo institucional</label><input id="c" type="email" required></div>
+    <div style="min-width:160px"><label for="a">Área</label><select id="a"><option value="Lectura">Lectura</option><option value="Matematica">Matemática</option><option value="Ciencias">Ciencias</option><option value="Ciudadania">Estudios Sociales</option><option value="General">General / coordinación</option></select></div>
+    <button class="btn" id="b">Registrar</button></form><div id="m"></div></div>
+   <div class="panel"><h2>Docentes registrados</h2><div id="lista" class="scroll"><p class="muted">Cargando…</p></div></div></div>`;
+  document.getElementById("f").onsubmit=async e=>{e.preventDefault();
+    const m=document.getElementById("m"),b=document.getElementById("b");b.disabled=true;b.textContent="Registrando…";m.innerHTML="";
+    try{const r=await api("crear_docente",{nombre:document.getElementById("n").value.trim(),correo:document.getElementById("c").value.trim().toLowerCase(),area:document.getElementById("a").value});
+      m.innerHTML=`<div class="msg ok">Cuenta creada para <b>${esc(r.correo)}</b>.<br>Contraseña temporal: <b style="font-family:var(--mono)">${esc(r.clave_temporal)}</b> — cópiala y entrégasela. No se vuelve a mostrar.</div>`;
+      document.getElementById("f").reset();cargarLista();
+    }catch(err){m.innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}
+    b.disabled=false;b.textContent="Registrar";};
+  cargarLista();
+  async function cargarLista(){
+    try{const {data:todos,error:e1}=await sb.from("perfiles").select("*").order("creado_en",{ascending:false});if(e1)throw new Error(e1.message);const d=todos.filter(x=>x.rol==="docente");
+      document.getElementById("lista").innerHTML=d.length?`<table class="q"><tr><th>Nombre</th><th>Correo</th><th>Área</th><th>Último ingreso</th><th>Estado</th><th></th></tr>
+      ${d.map(x=>`<tr><td>${esc(x.nombre)}</td><td>${esc(x.correo)}</td><td>${esc(x.area)}</td>
+      <td>${x.ultimo_ingreso_en?new Date(x.ultimo_ingreso_en).toLocaleString("es-EC"):"—"}</td>
+      <td>${x.activo?'<span class="flag ok">Activo</span>':'<span class="flag off">Inactivo</span>'}</td>
+      <td><button class="btn ghost est" data-id="${x.id}" data-a="${x.activo?0:1}">${x.activo?"Desactivar":"Activar"}</button></td></tr>`).join("")}</table>`
+      :`<p class="muted">Aún no has registrado docentes.</p>`;
+      document.querySelectorAll(".est").forEach(btn=>btn.onclick=async()=>{btn.disabled=true;
+        const {error}=await sb.from("perfiles").update({activo:btn.dataset.a==="1"}).eq("id",btn.dataset.id);if(error){btn.disabled=false;btn.textContent="Error";}else cargarLista();});
+    }catch(err){document.getElementById("lista").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}
+  }
+}
+async function panelAccesos(){
+  const main=document.getElementById("main");main.innerHTML=`<div class="panel"><div class="eyebrow">Auditoría</div><h2>Ingresos recientes</h2><div id="l" class="scroll"><p class="muted">Cargando…</p></div></div>`;
+  try{const {data:a,error:e2}=await sb.from("accesos").select("*").order("en",{ascending:false}).limit(200);if(e2)throw new Error(e2.message);
+    document.getElementById("l").innerHTML=a.length?`<table class="q"><tr><th>Fecha y hora</th><th>Correo</th><th>Evento</th></tr>
+    ${a.map(x=>`<tr><td>${new Date(x.en).toLocaleString("es-EC")}</td><td>${esc(x.correo||"—")}</td><td>${esc(x.evento)}</td></tr>`).join("")}</table>`
+    :`<p class="muted">Todavía no hay ingresos registrados.</p>`;
+  }catch(err){document.getElementById("l").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}
+}
+
+/* ---------------- Contenido (banco) ---------------- */
+async function asegurarBanco(){if(estado.banco)return estado.banco;const {data,error}=await sb.from("banco_contenido").select("dominio,data");if(error)throw new Error("No se pudo cargar el banco: "+error.message);if(!data||data.length<4)throw new Error("El banco de ítems aún se está cargando. Intenta en unos minutos.");const b={};data.forEach(r=>b[r.dominio]=r.data);estado.banco=b;return b;}
+function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h}
+function cuadernillo(k){const rot=k%4,alt=k>>2;return ORDEN.map((_,j)=>ORDEN[(j+rot)%4]).map((d,j)=>d+(((j+alt)%2)?"B":"A"))}
+
+/* ---------------- Simulador ---------------- */
+async function simulador(){
+  const main=document.getElementById("main");main.innerHTML=`<div class="panel"><p class="muted">Preparando el simulador…</p></div>`;
+  const banco=await asegurarBanco().catch(err=>{main.innerHTML=`<div class="panel"><div class="msg err">${esc(err.message)}</div></div>`;return null});
+  if(!banco)return;
+  if(!S.sim)S.sim={paso:"intro"};
+  const BL={};ORDEN.forEach(d=>["A","B"].forEach(f=>BL[d+f]={d,f,uns:banco[d].unidades.filter(u=>u.bloque===f)}));
+  S.simBL=BL;
+  ({intro:simIntro,prueba:simPrueba,fin:simFin})[S.sim.paso](main);
+}
+function simIntro(main){
+  main.innerHTML=`<div class="panel" style="max-width:680px"><div class="eyebrow">Simulador · modo práctica</div>
+   <h1>Vive la prueba como un estudiante</h1>
+   <p>Responderás <b>4 bloques</b>, uno por dominio, con 5 situaciones de 3 preguntas cada una. Es el mismo formato que rendirán los estudiantes de 10.º. Aquí el tiempo es libre y tus respuestas no se guardan como resultado real.</p>
+   <p class="muted">Al terminar verás la corrección con las claves, las rúbricas y la destreza AO de cada ítem.</p>
+   <button class="btn" id="go">Comenzar simulación</button></div>`;
+  document.getElementById("go").onclick=()=>{const cu=hash(estado.perfil.correo)%8;S.sim={paso:"prueba",cu,bls:cuadernillo(cu),b:0,i:0,resp:{}};simulador();};
+}
+const itemsBloque=(BL,k)=>BL[k].uns.flatMap(u=>u.items.map(i=>({...i,un:u})));
+function simPrueba(main){
+  const BL=S.simBL,k=S.sim.bls[S.sim.b],lista=itemsBloque(BL,k),it=lista[S.sim.i],v=S.sim.resp[it.c],un=it.un;
+  let campo="";
+  if(it.t==="sm")campo=it.o.map((o,j)=>`<label class="opt ${v===j?"sel":""}"><input type="radio" name="r" value="${j}" ${v===j?"checked":""}><span><b>${"ABCD"[j]})</b> ${esc(o)}</span></label>`).join("");
+  else if(it.t==="num")campo=`<label for="rn">Tu respuesta</label><input id="rn" inputmode="decimal" value="${esc(v)}" style="max-width:220px">`;
+  else campo=`<label for="rt">Tu respuesta</label><textarea id="rt">${esc(v)}</textarea>`;
+  let pal="",u="";lista.forEach((x,j)=>{if(x.un.id!==u){u=x.un.id;pal+=`<div class="u">${esc(x.un.titulo)}</div>`}pal+=`<button data-j="${j}" class="${S.sim.resp[x.c]!==undefined&&S.sim.resp[x.c]!==""?"done":""} ${j===S.sim.i?"cur":""}">${j+1}</button>`});
+  main.innerHTML=`<div class="test"><div class="panel">
+   <div class="bar"><div class="eyebrow">Bloque ${S.sim.b+1} de 4 · ${DOM[k[0]]}</div><div class="muted">Cuadernillo ${S.sim.cu+1}</div></div>
+   <h2>${esc(un.titulo)}</h2><div class="stim">${un.stim}</div>
+   <p class="qtext"><b>Pregunta ${S.sim.i+1}.</b> ${esc(it.q)}</p>${campo}
+   <p></p><div class="row"><button class="btn ghost" id="prev" ${S.sim.i===0?"disabled":""}>Anterior</button>
+   <button class="btn" id="next">${S.sim.i<lista.length-1?"Siguiente":(S.sim.b<3?"Terminar bloque":"Ver corrección")}</button></div></div>
+   <aside class="panel"><div class="eyebrow">Preguntas · ${lista.filter(x=>S.sim.resp[x.c]!==undefined&&S.sim.resp[x.c]!=="").length}/${lista.length}</div><div class="pal">${pal}</div></aside></div>`;
+  main.querySelectorAll("input[name=r]").forEach(r=>r.onchange=()=>{S.sim.resp[it.c]=+r.value;simPrueba(main)});
+  const rn=document.getElementById("rn"),rt=document.getElementById("rt");
+  if(rn)rn.oninput=()=>S.sim.resp[it.c]=rn.value;if(rt)rt.oninput=()=>S.sim.resp[it.c]=rt.value;
+  document.getElementById("prev").onclick=()=>{S.sim.i--;simPrueba(main)};
+  document.getElementById("next").onclick=()=>{if(S.sim.i<lista.length-1){S.sim.i++;simPrueba(main)}else if(S.sim.b<3){S.sim.b++;S.sim.i=0;simPrueba(main)}else{S.sim.paso="fin";simulador()}};
+  main.querySelectorAll(".pal button").forEach(b=>b.onclick=()=>{S.sim.i=+b.dataset.j;simPrueba(main)});
+}
+function credito(it,v){if(v===undefined||v==="")return 0;if(it.t==="sm")return v===it.k?1:0;if(it.t==="num"){const x=parseFloat(String(v).replace(",","."));return Math.abs(x-it.k)<=(it.tol||0)+1e-9?1:0}return null}
+function simFin(main){
+  const BL=S.simBL;let html=`<div class="stackp"><div class="panel"><div class="eyebrow">Corrección</div><h1>Tu simulación</h1>
+   <p class="muted">Así se ve la prueba por dentro: cada ítem con su clave, su rúbrica y su destreza. Las preguntas abiertas se califican con rúbrica, no automáticamente.</p></div>`;
+  S.sim.bls.forEach(k=>{const lista=itemsBloque(BL,k);
+    html+=`<div class="panel"><h2>${DOM[k[0]]}</h2>`;
+    lista.forEach(it=>{const v=S.sim.resp[it.c],c=credito(it,v);
+      html+=`<div style="padding:10px 0;border-top:1px solid var(--line)"><div class="row" style="justify-content:space-between">
+       <div><span class="tag">${it.c}</span><span class="tag">${it.ao}</span><span class="tag">${it.n}</span><span class="tag">${it.proc}</span></div>
+       ${it.t==="rc"?'<span class="muted" style="font-size:13px">Rúbrica</span>':c?'<span class="flag ok">Correcta</span>':'<span class="flag off">Revisar</span>'}</div>
+       <p class="qtext" style="margin:6px 0">${esc(it.q)}</p>`;
+      if(it.t==="sm")html+=it.o.map((o,j)=>`<div class="opt ${j===it.k?"key":""} ${v===j&&j!==it.k?"sel":""}" style="cursor:default"><span><b>${"ABCD"[j]})</b> ${esc(o)} ${j===it.k?"✓":""}</span></div>`).join("");
+      else if(it.t==="num")html+=`<p>Tu respuesta: <b>${esc(v||"—")}</b> · Clave: <b>${esc(it.k)}</b>${it.tol?` (±${it.tol})`:""}</p>`;
+      else{html+=`<p>Tu respuesta: ${esc(v||"—")}</p>`+it.r.map((r,n)=>`<div class="rub"><span class="cred">${n}</span>${esc(r)}</div>`).join("")}
+      html+=`</div>`;});
+    html+=`</div>`;});
+  html+=`<div class="panel"><button class="btn" id="otra">Repetir simulación</button></div></div>`;
+  main.innerHTML=html;document.getElementById("otra").onclick=()=>{S.sim={paso:"intro"};simulador()};
+}
+
+/* ---------------- Revisión docente ---------------- */
+async function revision(){
+  const main=document.getElementById("main");main.innerHTML=`<div class="panel"><p class="muted">Cargando banco…</p></div>`;
+  const banco=await asegurarBanco().catch(err=>{main.innerHTML=`<div class="panel"><div class="msg err">${esc(err.message)}</div></div>`;return null});
+  if(!banco)return;
+  if(!S.rev)S.rev=estado.perfil.area&&AREAS[estado.perfil.area]||"L";
+  main.innerHTML=`<div class="stackp"><div class="panel"><div class="row" style="justify-content:space-between"><div><div class="eyebrow">Revisión docente</div><h2>Banco de ítems con claves</h2></div>
+   <div class="seg">${ORDEN.map(d=>`<button data-d="${d}" aria-pressed="${S.rev===d}">${DOMC[d]}</button>`).join("")}</div></div>
+   <p class="muted">Material reservado para docentes. No debe compartirse con estudiantes antes de la aplicación.</p></div>
+   <div id="cont"></div></div>`;
+  main.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{S.rev=b.dataset.d;revision()});
+  const d=S.rev,cont=document.getElementById("cont");let html="";
+  banco[d].unidades.forEach(u=>{html+=`<div class="panel"><div class="eyebrow">${u.id} · Bloque ${u.bloque}${u.subdominio?" · "+u.subdominio:""}</div><h2>${esc(u.titulo)}</h2><div class="stim">${u.stim}</div>`;
+    u.items.forEach(it=>{html+=`<div style="padding:10px 0;border-top:1px solid var(--line)"><div><span class="tag">${it.c}</span><span class="tag">${it.ao}</span><span class="tag">${it.n}</span><span class="tag">${it.proc}</span><span class="tag">${it.dif}</span></div>
+     <p class="qtext" style="margin:6px 0"><b>${esc(it.q)}</b></p>`;
+     if(it.t==="sm")html+=it.o.map((o,j)=>`<div class="opt ${j===it.k?"key":""}" style="cursor:default"><span><b>${"ABCD"[j]})</b> ${esc(o)} ${j===it.k?"✓ clave":""}</span></div>`).join("");
+     else if(it.t==="num")html+=`<p>Respuesta: <b>${esc(it.k)}</b>${it.tol?` (±${it.tol})`:""}</p>`;
+     else html+=`<p class="muted" style="font-size:13px">Rúbrica:</p>`+it.r.map((r,n)=>`<div class="rub"><span class="cred">${n}</span>${esc(r)}</div>`).join("");
+     html+=`</div>`;});
+    html+=`</div>`;});
+  cont.innerHTML=html;
+}
+
+/* ---------------- Marco ---------------- */
+function panelMarco(){
+  const MAT=[["L","Localizar",8,"25%"],["L","Comprender",13,"45%"],["L","Evaluar y reflexionar",9,"30%"],
+   ["M","Formular",8,"25%"],["M","Emplear",15,"50%"],["M","Interpretar",7,"25%"],
+   ["C","Explicar fenómenos",12,"40%"],["C","Evaluar y diseñar indagación",8,"25%"],["C","Interpretar datos",10,"35%"],
+   ["S","Conocer y comprender",10,"35%"],["S","Analizar fuentes",12,"40%"],["S","Razonar y proponer",8,"25%"]];
+  document.getElementById("main").innerHTML=`<div class="stackp">
+   <div class="panel"><div class="eyebrow">Marco de evaluación</div><h1>Cómo funciona PRISMA 2027</h1>
+   <p>PRISMA es una evaluación diagnóstica tipo PISA para 10.º EGB de ANAI Online. Mide cuatro dominios con situaciones de la vida real, no memoria. Es presencial, en los laboratorios, y no lleva nota: produce una radiografía honesta de lo que hay que reforzar, tomando como meta el Ecosistema Curricular 2027–2028.</p>
+   <div class="row">${ORDEN.map(d=>`<span class="tag">${DOM[d]}</span>`).join("")}</div></div>
+   <div class="panel"><h2>Niveles de desempeño</h2><div class="row">${NIV.map((n,i)=>`<span class="tag" style="background:var(--lv${i});color:#fff">${i} · ${n}</span>`).join("")}</div>
+   <p class="muted" style="margin-top:10px">El nivel 2 (Básico) es el umbral mínimo esperado al terminar 10.º.</p></div>
+   <div class="panel"><h2>Matriz de especificaciones</h2><p class="muted">120 ítems en total, 30 por dominio, repartidos en 8 cuadernillos. Cada estudiante responde 60 (4 bloques).</p>
+   <div class="scroll"><table class="q"><tr><th>Dominio</th><th>Proceso</th><th>Ítems</th><th>Peso</th></tr>
+   ${MAT.map(r=>`<tr><td>${DOM[r[0]]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("")}</table></div></div></div>`;
+}
+</script></body></html>
