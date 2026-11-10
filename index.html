@@ -103,7 +103,8 @@ async function init(){
   await cargarPerfil();
 }
 async function cargarPerfil(){
-  const {data,error}=await sb.from("perfiles").select("*").maybeSingle();
+  const {data:{user}}=await sb.auth.getUser();if(!user){return vistaLogin();}
+  const {data,error}=await sb.from("perfiles").select("*").eq("id",user.id).maybeSingle();
   if(error||!data){await sb.auth.signOut();return vistaLogin("Tu cuenta no tiene acceso a PRISMA. Pide a tu administrador que te registre.");}
   if(!data.activo){await sb.auth.signOut();return vistaLogin("Tu cuenta está desactivada. Contacta a tu administrador.");}
   estado.perfil=data;
