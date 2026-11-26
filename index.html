@@ -150,13 +150,16 @@ window.addEventListener("hashchange",arrancar);
 function arrancar(){
   limpiarTemporizadores();
   if(location.hash==="#estudiante")return Est.iniciar();
+  if(location.hash==="#practica")return Prac.iniciar();
   if(location.hash.startsWith("#activar-"))return Activar.iniciar(location.hash.slice(9));
   Staff.iniciar();
 }
 
 /* ===================== ESTUDIANTE ===================== */
-const Est={tok:null,v:null,i:0,guardando:0,
+const Est={tok:null,v:null,i:0,guardando:0,pre:"est_",ext:{},
+  expiro(msg){if(this.pre==="prac_"){guardarLocal("prisma_prac",null);return Prac.ingreso(msg)}guardarLocal("prisma_tok",null);return this.ingreso(msg)},
   async iniciar(){
+    this.pre="est_";this.ext={};this.instruido=false;
     this.tok=leerLocal("prisma_tok");
     if(this.tok)return this.cargar();
     this.ingreso();
@@ -176,8 +179,8 @@ const Est={tok:null,v:null,i:0,guardando:0,
       }catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;b.disabled=false;b.textContent="Ingresar a la prueba";}};
   },
   async cargar(reanudado){
-    try{this.v=await llamar("est_estado",{token:this.tok});}
-    catch(err){if(err.reingresar){guardarLocal("prisma_tok",null);return this.ingreso(err.message)}
+    try{this.v=await llamar(this.pre+"estado",{token:this.tok,...this.ext});}
+    catch(err){if(err.reingresar)return this.expiro(err.message);
       root.innerHTML=`<div class="center"><div class="panel card-sm"><div class="msg err">${esc(err.message)}</div><button class="btn" id="r">Reintentar</button></div></div>`;$("r").onclick=()=>this.cargar();return;}
     this.reanudado=reanudado;this.mostrar();
   },
@@ -185,11 +188,12 @@ const Est={tok:null,v:null,i:0,guardando:0,
     limpiarTemporizadores();
     const v=this.v;
     if(v.fase==="prueba"){if(!this.instruido&&v.bloque===0&&!this.reanudado)return this.instrucciones();return this.prueba();}
+    if(v.fase==="resultado")return Prac.resultado();
     if(v.fase==="pausa")return this.pausa();
     if(v.fase==="contexto")return this.contexto();
     this.fin();
   },
-  cabecera(){const v=this.v;return `<header class="top">${marca("Evaluación diagnóstica · 10.º EGB")}
+  cabecera(){const v=this.v;return `<header class="top">${marca(v.practica?"Simulador de práctica · 10.º EGB":"Evaluación diagnóstica · 10.º EGB")}
     <div class="muted small" style="text-align:right">${esc(v.estudiante.nombre||"")}<br><span style="font-family:var(--mono)">${esc(v.estudiante.codigo)} · ${esc(v.estudiante.paralelo||"")}</span></div></header>`},
   instrucciones(){
     const v=this.v;
@@ -207,11 +211,12 @@ const Est={tok:null,v:null,i:0,guardando:0,
     $("go").onclick=()=>{this.instruido=true;this.prueba();};
   },
   reloj(el){
+    if(this.v.restante==null){if(el)el.textContent="Sin límite de tiempo";return;}
     const fin=Date.now()+this.v.restante*1000;
     const tick=()=>{const s=Math.max(0,Math.round((fin-Date.now())/1000));if(el&&document.body.contains(el)){el.textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;el.classList&&el.classList.toggle("low",s<180);}
       if(s<=0){limpiarTemporizadores();this.cargar();}};
     tick();timers.push(setInterval(tick,1000));
-    timers.push(setInterval(async()=>{try{const v=await llamar("est_estado",{token:this.tok});if(v.fase!==this.v.fase||v.bloque!==this.v.bloque){this.v=v;this.mostrar();}}catch(e){}},60000));
+    timers.push(setInterval(async()=>{try{const v=await llamar(this.pre+"estado",{token:this.tok,...this.ext});if(v.fase!==this.v.fase||v.bloque!==this.v.bloque){this.v=v;this.mostrar();}}catch(e){}},60000));
   },
   lista(){return this.v.unidades.flatMap(u=>u.items.map(it=>({...it,un:u})))},
   prueba(){
@@ -225,7 +230,7 @@ const Est={tok:null,v:null,i:0,guardando:0,
       const r=v.respuestas[x.c];pal+=`<button data-j="${j}" class="${r!==undefined&&r!==""?"done":""} ${j===this.i?"cur":""}" aria-label="Pregunta ${j+1}">${j+1}</button>`});
     const resp=lista.filter(x=>v.respuestas[x.c]!==undefined&&v.respuestas[x.c]!=="").length;
     root.innerHTML=this.cabecera()+`<div class="test est-noselect"><div class="panel">
-     <div class="row between" style="margin-bottom:10px"><div class="eyebrow"><span class="dtag" style="background:var(--d${v.dominio})"></span>Bloque ${v.bloque+1} de 4 · ${DOM[v.dominio]}</div><div class="timer" id="tm"></div></div>
+     <div class="row between" style="margin-bottom:10px"><div class="eyebrow"><span class="dtag" style="background:var(--d${v.dominio})"></span>Bloque ${v.bloque+1} de ${v.total} · ${DOM[v.dominio]}</div><div class="timer" id="tm"></div></div>
      <h2>${esc(un.titulo)}</h2><div class="stim">${un.stim}</div>
      <p class="qtext"><b>Pregunta ${this.i+1} de ${lista.length}.</b> ${esc(it.q)}</p>${campo}
      <p class="saved" id="sv">&nbsp;</p>
@@ -237,8 +242,8 @@ const Est={tok:null,v:null,i:0,guardando:0,
     this.reloj($("tm"));
     const guardar=async(valor)=>{
       v.respuestas[it.c]=valor;this.guardando++;$("sv").textContent="Guardando…";
-      try{await llamar("est_responder",{token:this.tok,c:it.c,v:valor});if($("sv"))$("sv").textContent="Guardado ✓";}
-      catch(err){if(err.reingresar){guardarLocal("prisma_tok",null);return this.ingreso(err.message)}
+      try{await llamar(this.pre+"responder",{token:this.tok,...this.ext,c:it.c,v:valor});if($("sv"))$("sv").textContent="Guardado ✓";}
+      catch(err){if(err.reingresar)return this.expiro(err.message);
         if(err.cambio)return this.cargar();if($("sv"))$("sv").textContent="No se guardó: "+err.message;}
       finally{this.guardando--;}
     };
@@ -250,13 +255,13 @@ const Est={tok:null,v:null,i:0,guardando:0,
     $("prev").onclick=()=>ir(this.i-1);if($("next"))$("next").onclick=()=>ir(this.i+1);
     root.querySelectorAll(".pal button").forEach(b=>b.onclick=()=>ir(+b.dataset.j));
     $("term").onclick=()=>{const falt=lista.length-resp;
-      $("fb").innerHTML=`<p class="small"><b>¿Terminar el bloque ${v.bloque+1}?</b> ${falt?`Te faltan ${falt} preguntas. `:""}No podrás volver a este bloque.</p>
+      $("fb").innerHTML=`<p class="small"><b>${v.practica&&v.bloque===v.total-1?"¿Terminar y ver tu corrección?":"¿Terminar el bloque "+(v.bloque+1)+"?"}</b> ${falt?`Te faltan ${falt} preguntas. `:""}No podrás volver a este bloque.</p>
       <div class="row"><button class="btn sm" id="si">Sí, terminar</button><button class="btn ghost sm" id="no">Seguir respondiendo</button></div>`;
       $("no").onclick=()=>this.prueba();
       $("si").onclick=async()=>{if(rn||rt){const el=rn||rt;if(el.value!==(v.respuestas[it.c]??""))await guardar(el.value);}
         while(this.guardando>0)await new Promise(r=>setTimeout(r,150));
-        try{this.v=await llamar("est_siguiente",{token:this.tok,desde:v.bloque});this.i=0;this.mostrar();window.scrollTo(0,0);}
-        catch(err){if(err.reingresar){guardarLocal("prisma_tok",null);return this.ingreso(err.message)}$("fb").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}};};
+        try{this.v=await llamar(this.pre+"siguiente",{token:this.tok,...this.ext,desde:v.bloque});this.i=0;this.mostrar();window.scrollTo(0,0);}
+        catch(err){if(err.reingresar)return this.expiro(err.message);$("fb").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;}};};
   },
   pausa(){
     root.innerHTML=this.cabecera()+`<div class="panel" style="max-width:600px"><div class="eyebrow">Pausa activa · 10 minutos</div><h1>Terminaste la primera mitad</h1>
@@ -290,6 +295,73 @@ const Est={tok:null,v:null,i:0,guardando:0,
   }
 };
 window.addEventListener("beforeunload",e=>{if(location.hash==="#estudiante"&&Est.v&&Est.v.fase==="prueba"){e.preventDefault();e.returnValue="";}});
+
+/* ===================== SIMULADOR DE PRÁCTICA (estudiantes) ===================== */
+const Prac={tok:null,
+  async iniciar(){this.tok=leerLocal("prisma_prac");if(this.tok)return this.menu();this.ingreso();},
+  ingreso(aviso){
+    root.innerHTML=`<div class="center"><div class="panel card-sm">${marca("Simulador de práctica · 10.º EGB")}
+     <h1 style="margin-top:18px">Practica para PRISMA 2027</h1>
+     <p class="muted">Prepárate para la evaluación de enero con simulacros del mismo formato. Puedes practicar las veces que quieras y ver la corrección al terminar. Nada de esto cuenta como nota.</p>
+     ${aviso?`<div class="msg err">${esc(aviso)}</div>`:""}
+     <form id="f"><label for="cod">Tu código de estudiante</label><input id="cod" autocomplete="off" autocapitalize="characters" required>
+     <div id="m"></div><p></p><button class="btn" id="b">Entrar al simulador</button></form></div></div>`;
+    $("f").onsubmit=async e=>{e.preventDefault();$("b").disabled=true;$("m").innerHTML="";
+      try{const r=await llamar("prac_ingresar",{codigo:$("cod").value});this.tok=r.token;guardarLocal("prisma_prac",r.token);this.menu();}
+      catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;$("b").disabled=false;}};
+  },
+  async menu(){
+    limpiarTemporizadores();
+    root.innerHTML=`<div class="center"><p class="muted">Cargando…</p></div>`;
+    let r;try{r=await llamar("prac_menu",{token:this.tok});}catch(err){if(err.reingresar){guardarLocal("prisma_prac",null);return this.ingreso(err.message)}root.innerHTML=`<div class="panel"><div class="msg err">${esc(err.message)}</div></div>`;return;}
+    const e=r.estudiante,h=r.historial;
+    const pct=x=>x&&x.total?Math.round(x.ok/x.total*100):null;
+    root.innerHTML=`<header class="top">${marca("Simulador de práctica · 10.º EGB")}<div class="row"><span class="muted small">${esc(e.nombre)} · ${esc(e.paralelo)}</span><button class="btn ghost sm" id="salir">Salir</button></div></header>
+     <div class="stackp"><div class="panel"><div class="eyebrow">Elige tu práctica</div><h1>¿Qué quieres practicar hoy?</h1>
+      <p class="muted">Cada práctica sortea situaciones distintas de un banco amplio, así que casi nunca verás las mismas preguntas. Son del mismo estilo que la evaluación de enero, pero no son las mismas.</p>
+      <label style="display:flex;gap:8px;align-items:center;font-weight:400;margin:6px 0 14px"><input type="checkbox" id="tiempo" checked style="width:auto"> Practicar con tiempo (25 minutos por bloque, como en enero)</label>
+      <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+       ${ORDEN.map(d=>`<button class="panel prac-op" data-d="${d}" style="text-align:left;cursor:pointer;font:inherit;color:inherit"><span class="dtag" style="background:var(--d${d})"></span><b>${DOM[d]}</b><br><span class="muted small">1 bloque · 5 situaciones · 15 preguntas</span></button>`).join("")}
+       <button class="panel prac-op" data-d="completo" style="text-align:left;cursor:pointer;font:inherit;color:inherit;border-color:var(--cyan)"><b>Simulacro completo</b><br><span class="muted small">4 bloques, uno por dominio · 60 preguntas</span></button>
+      </div><div id="m"></div></div>
+     <div class="panel"><h2>Mis prácticas</h2>${h.length?`<div class="scroll"><table class="q"><tr><th>Fecha</th><th>Práctica</th>${ORDEN.map(d=>`<th>${DOMC[d]}</th>`).join("")}<th></th></tr>
+      ${h.map(x=>`<tr><td class="small">${fmtFecha(x.iniciado_en)}</td><td>${x.modo==="completo"?"Simulacro completo":DOMC[x.dominios[0]]}</td>
+       ${ORDEN.map(d=>{const v=pct(x.resumen[d]);return `<td>${x.fase!=="resultado"||!x.dominios.includes(d)?`<span class="muted">—</span>`:`<b>${v} %</b><span class="muted small"> (${x.resumen[d].ok}/${x.resumen[d].total})</span>`}</td>`}).join("")}
+       <td>${x.fase==="resultado"?`<button class="btn ghost sm ver" data-id="${x.id}">Ver corrección</button>`:`<button class="btn sm seguir" data-id="${x.id}">Continuar</button>`}</td></tr>`).join("")}</table></div>
+      <p class="muted small">El porcentaje cuenta las preguntas de corrección automática. Las preguntas abiertas las revisas tú con la rúbrica en la corrección.</p>`
+      :`<p class="muted">Todavía no has practicado. Empieza con el dominio que más te preocupe.</p>`}</div></div>`;
+    $("salir").onclick=()=>{guardarLocal("prisma_prac",null);this.tok=null;this.ingreso();};
+    root.querySelectorAll(".prac-op").forEach(b=>b.onclick=async()=>{root.querySelectorAll(".prac-op").forEach(x=>x.disabled=true);
+      try{const r2=await llamar("prac_iniciar",{token:this.tok,modo:b.dataset.d==="completo"?"completo":"dominio",dominio:b.dataset.d,tiempo:$("tiempo").checked});this.abrir(r2.id);}
+      catch(err){$("m").innerHTML=`<div class="msg err">${esc(err.message)}</div>`;root.querySelectorAll(".prac-op").forEach(x=>x.disabled=false);}});
+    root.querySelectorAll(".seguir").forEach(b=>b.onclick=()=>this.abrir(+b.dataset.id));
+    root.querySelectorAll(".ver").forEach(b=>b.onclick=()=>{Est.ext={id:+b.dataset.id};this.resultado();});
+  },
+  abrir(id){Est.pre="prac_";Est.ext={id};Est.tok=this.tok;Est.instruido=true;Est.reanudado=true;Est.i=0;Est.cargar();window.scrollTo(0,0);},
+  async resultado(){
+    limpiarTemporizadores();
+    root.innerHTML=`<div class="center"><p class="muted">Preparando tu corrección…</p></div>`;
+    let r;try{r=await llamar("prac_resultado",{token:this.tok,...Est.ext});}catch(err){if(err.reingresar){guardarLocal("prisma_prac",null);return this.ingreso(err.message)}root.innerHTML=`<div class="panel"><div class="msg err">${esc(err.message)}</div><button class="btn" id="v">Volver</button></div>`;$("v").onclick=()=>this.menu();return;}
+    const doms=r.bloques.map(b=>b.dominio);
+    let h=`<header class="top">${marca("Simulador de práctica · 10.º EGB")}<button class="btn ghost sm" id="vol">Volver al menú</button></header>
+     <div class="stackp"><div class="panel"><div class="eyebrow">Corrección</div><h1>Así te fue</h1>
+     <div class="kpis">${doms.map(d=>{const x=r.resumen[d]||{ok:0,total:0,abiertas:0};const v=x.total?Math.round(x.ok/x.total*100):0;return `<div class="kpi"><span class="muted small"><span class="dtag" style="background:var(--d${d})"></span>${DOMC[d]}</span><b>${v} %</b><span class="small muted">${x.ok} de ${x.total} automáticas${x.abiertas?` · ${x.abiertas} abiertas para revisar`:""}</span></div>`}).join("")}</div>
+     <p class="muted">Revisa cada pregunta: lee la explicación de las que fallaste y compara tus respuestas abiertas con la rúbrica. Así sabrás qué reforzar antes de enero.</p></div>`;
+    r.bloques.forEach(b=>{h+=`<div class="panel"><h2><span class="dtag" style="background:var(--d${b.dominio})"></span>${DOM[b.dominio]}</h2>`;
+      b.unidades.forEach(u=>{h+=`<details style="margin:10px 0"><summary style="cursor:pointer;font-weight:600">${esc(u.titulo)} <span class="muted small">(ver texto)</span></summary><div class="stim">${u.stim}</div></details>`;
+        u.items.forEach(it=>{const res=it.respuesta;
+          const estado=it.t==="rc"?`<span class="flag info">Autoevalúa con la rúbrica</span>`:it.credito===1?`<span class="flag ok">Correcta</span>`:(res===undefined||res==="")?`<span class="flag warn">Sin responder</span>`:`<span class="flag off">Incorrecta</span>`;
+          h+=`<div style="padding:10px 0;border-top:1px solid var(--line)"><div class="row between"><span class="tag">${esc(it.proc)}</span>${estado}</div><p class="qtext"><b>${esc(it.q)}</b></p>`;
+          if(it.t==="sm")h+=it.o.map((o,j)=>`<div class="opt ${j===it.k?"key":""} ${res===j&&j!==it.k?"sel":""}" style="cursor:default"><span>${esc(o)} ${j===it.k?" ✓ correcta":""}${res===j&&j!==it.k?" ← tu respuesta":""}${res===j&&j===it.k?" ← tu respuesta":""}</span></div>`).join("");
+          else if(it.t==="num")h+=`<p>Tu respuesta: <b>${esc(res||"—")}</b> · Respuesta correcta: <b>${esc(String(it.k).replace(".",","))}</b></p>`;
+          else h+=`<p class="small muted">Tu respuesta:</p><div class="stim" style="background:var(--bg);border:1px solid var(--line)">${esc(res||"(sin respuesta)")}</div><p class="small muted">Rúbrica:</p>`+it.r.map((x,n)=>`<div class="rub"><span class="cred">${n}</span>${esc(x)}</div>`).join("");
+          if(it.e)h+=`<div class="msg info" style="margin-top:8px"><b>${it.t==="rc"?"Ejemplo de respuesta completa":"Explicación"}:</b> ${esc(it.e)}</div>`;
+          h+=`</div>`;});});h+=`</div>`;});
+    h+=`<div class="panel row"><button class="btn" id="otra">Hacer otra práctica</button><button class="btn ghost" id="vol2">Volver al menú</button></div></div>`;
+    root.innerHTML=h;window.scrollTo(0,0);
+    $("vol").onclick=$("vol2").onclick=$("otra").onclick=()=>this.menu();
+  }
+};
 
 /* ===================== ACTIVACIÓN DE CUENTA ===================== */
 const Activar={
@@ -342,7 +414,7 @@ const Staff={perfil:null,banco:null,tab:null,
      <form id="f"><label for="e">Correo</label><input id="e" type="email" autocomplete="username" required>
      <label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password" required>
      <div id="m"></div><p></p><div class="row between"><button class="btn" id="b">Ingresar</button><a href="#" id="olv" class="small" style="color:var(--cyan)">¿Olvidaste tu contraseña?</a></div></form>
-     <p class="foot muted">¿Eres estudiante y vas a rendir la prueba? <a href="#estudiante">Ingresa aquí</a></p></div></div>`;
+     <p class="foot muted">¿Eres estudiante? <a href="#practica">Simulador de práctica</a> · <a href="#estudiante">Evaluación oficial</a></p></div></div>`;
     $("olv").onclick=ev=>{ev.preventDefault();$("m").innerHTML=`<div class="msg info">Pide a tu administrador una contraseña temporal nueva. Con ella ingresas y creas tu propia contraseña.</div>`;};
     $("f").onsubmit=async e=>{e.preventDefault();const b=$("b");b.disabled=true;b.textContent="Ingresando…";$("m").innerHTML="";
       const {error}=await sb.auth.signInWithPassword({email:$("e").value.trim().toLowerCase(),password:$("p").value});
@@ -364,8 +436,8 @@ const Staff={perfil:null,banco:null,tab:null,
   app(){
     limpiarTemporizadores();
     const p=this.perfil,admin=p.rol==="admin";
-    const tabs=admin?[["resultados","Resultados"],["monitoreo","Monitoreo"],["sesiones","Sesiones"],["estudiantes","Estudiantes"],["correccion","Corrección"],["docentes","Docentes"],["accesos","Accesos"],["sim","Simulador"],["revision","Revisión"],["marco","Marco"]]
-                    :[["resultados","Resultados"],["correccion","Corrección"],["sim","Simulador"],["revision","Revisión"],["marco","Marco"]];
+    const tabs=admin?[["resultados","Resultados"],["practica","Práctica"],["monitoreo","Monitoreo"],["sesiones","Sesiones"],["estudiantes","Estudiantes"],["correccion","Corrección"],["docentes","Docentes"],["accesos","Accesos"],["sim","Simulador"],["revision","Revisión"],["marco","Marco"]]
+                    :[["resultados","Resultados"],["practica","Práctica"],["correccion","Corrección"],["sim","Simulador"],["revision","Revisión"],["marco","Marco"]];
     if(!this.tab||!tabs.some(t=>t[0]===this.tab))this.tab=tabs[0][0];
     root.innerHTML=`<header class="top">${marca()}<div class="row"><span class="muted small">${esc(p.nombre)} · ${admin?"Administrador":"Docente · "+esc(p.area)}</span><button class="btn ghost sm" id="salir">Salir</button></div></header>
      <nav class="tabs" id="tabs" style="margin-bottom:16px">${tabs.map(t=>`<button data-t="${t[0]}" aria-pressed="${this.tab===t[0]}">${t[1]}</button>`).join("")}</nav><main id="main"></main>`;
@@ -454,6 +526,36 @@ async resultados(m){
   $("csvR").onclick=()=>descargar("prisma2027_respuestas.csv",["codigo;paralelo;cuadernillo;item;dominio;proceso;destreza;nivel;respuesta;credito",
     ...pob.flatMap(a=>itemsDelPlan(a.plan).map(it=>{const r=a.respuestas?.[it.c];const txt=it.t==="sm"&&r!==undefined?"ABCD"[r]+"(orig)":String(r??"");const c=creditoDe(a,it);
       return [a.estudiante_codigo,a.est.paralelo,a.cuadernillo+1,it.c,it.d,it.proc,it.ao,it.n,JSON.stringify(txt),c===null?"":c].join(";")}))].join("\n"));
+},
+
+/* ---------- Práctica de estudiantes ---------- */
+async practica(m){
+  const [{data:ps,error},{data:ests}]=await Promise.all([sb.from("practicas").select("estudiante_codigo,modo,plan,resumen,fase,iniciado_en").order("iniciado_en",{ascending:false}).limit(5000),sb.from("estudiantes").select("codigo,nombre,paralelo,activo")]);
+  if(error)throw error;
+  const url=location.origin+location.pathname+"#practica";
+  const F=V._p||(V._p={par:"Todos"});
+  const pars=["Todos",...new Set((ests||[]).map(e=>e.paralelo))].sort();
+  const E=(ests||[]).filter(e=>e.activo&&(F.par==="Todos"||e.paralelo===F.par));
+  const porEst={};(ps||[]).forEach(p=>{(porEst[p.estudiante_codigo]??=[]).push(p)});
+  const conPractica=E.filter(e=>porEst[e.codigo]);
+  const semana=Date.now()-7*864e5;
+  const intentos=E.reduce((s,e)=>s+(porEst[e.codigo]||[]).length,0);
+  const recientes=E.reduce((s,e)=>s+(porEst[e.codigo]||[]).filter(p=>new Date(p.iniciado_en)>semana).length,0);
+  const prom=(lista,d)=>{let ok=0,t=0;lista.forEach(p=>{if(p.fase==="resultado"&&p.resumen[d]){ok+=p.resumen[d].ok;t+=p.resumen[d].total}});return t?Math.round(ok/t*100):null};
+  const todas=E.flatMap(e=>porEst[e.codigo]||[]);
+  m.innerHTML=`<div class="stackp"><div class="panel"><div class="row between"><div><div class="eyebrow">Simulador de práctica</div><h1>Participación de los estudiantes</h1></div>
+    <div class="seg" id="spp">${pars.map(p=>`<button data-v="${esc(p)}" aria-pressed="${F.par===p}">${esc(p)}</button>`).join("")}</div></div>
+   <div class="msg info">Enlace para compartir con los estudiantes: <b style="font-family:var(--mono)">${esc(url)}</b> <button class="btn ghost sm" id="cpu">Copiar</button><br><span class="small">Entran con su código de estudiante, sin horario. Las prácticas usan un banco distinto al de la evaluación oficial y no cuentan como nota.</span></div>
+   <div class="kpis"><div class="kpi"><span class="muted small">Estudiantes que ya practicaron</span><b>${conPractica.length} / ${E.length}</b></div>
+    <div class="kpi"><span class="muted small">Prácticas realizadas</span><b>${intentos}</b></div><div class="kpi"><span class="muted small">Prácticas en los últimos 7 días</span><b>${recientes}</b></div>
+    ${ORDEN.map(d=>{const v=prom(todas,d);return `<div class="kpi"><span class="muted small"><span class="dtag" style="background:var(--d${d})"></span>Aciertos en ${DOMC[d]}</span><b>${v===null?"—":v+" %"}</b></div>`}).join("")}</div>
+   <p class="muted small">Los aciertos de práctica sirven para motivar y orientar; no son un diagnóstico. El diagnóstico oficial es la evaluación de enero.</p></div>
+   <div class="panel"><h2>Por estudiante</h2><div class="scroll"><table class="q"><tr><th>Estudiante</th><th>Paralelo</th><th>Prácticas</th><th>Última</th>${ORDEN.map(d=>`<th>${DOMC[d]}</th>`).join("")}</tr>
+    ${E.sort((a,b)=>((porEst[b.codigo]||[]).length-(porEst[a.codigo]||[]).length)||a.nombre.localeCompare(b.nombre)).map(e=>{const l=porEst[e.codigo]||[];
+     return `<tr><td>${esc(e.nombre)}<br><span class="muted small">${esc(e.codigo)}</span></td><td>${esc(e.paralelo)}</td><td>${l.length?`<b>${l.length}</b>`:`<span class="flag warn">Aún no practica</span>`}</td><td class="small">${l.length?fmtFecha(l[0].iniciado_en):"—"}</td>
+     ${ORDEN.map(d=>{const v=prom(l,d);return `<td>${v===null?`<span class="muted">—</span>`:v+" %"}</td>`}).join("")}</tr>`}).join("")||`<tr><td colspan="8" class="muted">Carga la lista de estudiantes en la pestaña Estudiantes para que puedan entrar al simulador.</td></tr>`}</table></div></div></div>`;
+  m.querySelectorAll("#spp button").forEach(b=>b.onclick=()=>{F.par=b.dataset.v;V.practica(m)});
+  $("cpu").onclick=e=>navigator.clipboard.writeText(url).then(()=>e.target.textContent="Copiado",()=>{});
 },
 
 /* ---------- Monitoreo ---------- */
